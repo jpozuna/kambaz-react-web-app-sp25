@@ -77,9 +77,9 @@ export default function Lab1() {
                     title="Please type your password which doesn't have to be unique"
                 />
                 <br />
-                <button type="button">Delete</button>
+                <button type="button" style="margin-bottom: 10px;">Delete</button>
                 <br />
-                <button type="button">Edit</button>
+                <button type="button" style="margin-bottom: 10px;">Edit</button>
                 <br />
                 <button type="submit">Update</button>
                 <br />
