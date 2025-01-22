@@ -1,6 +1,6 @@
 import Labs from "./Labs";
-import { HashRouter, Route, Routes, Navigate } from "react-router";
 import Kambaz from "./Kambaz";
+import { HashRouter, Route, Routes, Navigate } from "react-router";
 function App() {
     return (
         <HashRouter>
