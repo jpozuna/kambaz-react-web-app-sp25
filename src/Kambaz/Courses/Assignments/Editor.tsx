@@ -8,6 +8,7 @@ export default function AssignmentEditor() {
       </textarea>
             <br />
             <table>
+                <tbody>
                 <tr>
                     <td align="right" valign="top">
                         <label htmlFor="wd-points">Points</label>
@@ -16,6 +17,8 @@ export default function AssignmentEditor() {
                         <input id="wd-points" value={100} />
                     </td>
                 </tr>
+                </tbody>
+                <tbody>
                 <tr>
                     <td align="right" valign="top">
                         <label htmlFor="wd-due-date">Due Date</label>
@@ -24,6 +27,7 @@ export default function AssignmentEditor() {
                         <input id="wd-due-date" type="date" />
                     </td>
                 </tr>
+                </tbody>
             </table>
             <br />
             <button type="submit">Submit Assignment</button>

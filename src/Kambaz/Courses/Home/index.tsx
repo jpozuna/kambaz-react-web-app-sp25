@@ -3,6 +3,7 @@ import CourseStatus from "./Status";
 export default function Home() {
     return (
         <table id="wd-home">
+            <tbody>
             <tr>
                 <td valign="top">
                     {" "}
@@ -13,6 +14,7 @@ export default function Home() {
                     <CourseStatus />{" "}
                 </td>
             </tr>
+            </tbody>
         </table>
     );
 }
