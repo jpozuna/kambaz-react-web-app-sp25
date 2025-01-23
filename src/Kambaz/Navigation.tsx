@@ -1,23 +1,35 @@
 import { Link } from "react-router-dom";
-export default function CoursesNavigation() {
-    return (
-        <div id="wd-courses-navigation">
-            <Link to="/Kambaz/Courses/1234/Home">Home</Link>
-            <br />
-            <Link to="/Kambaz/Courses/1234/Modules">Modules</Link>
-            <br />
-            <Link to="/Kambaz/Courses/1234/Piazza">Piazza</Link>
-            <br />
-            <Link to="/Kambaz/Courses/1234/Zoom">Zoom</Link>
-            <br />
-            <Link to="/Kambaz/Courses/1234/Assignments">Assignments</Link>
-            <br />
-            <Link to="/Kambaz/Courses/1234/Quizzes">Quizzes</Link>
-            <br />
-            <Link to="/Kambaz/Courses/1234/Grades">Grades</Link>
-            <br />
-            <Link to="/Kambaz/Courses/1234/People">People</Link>
-            <br />
-        </div>
-    );
+export default function KambazNavigation() {
+        return (
+            <div id="wd-kambaz-navigation">
+                    <a href="https://www.northeastern.edu/" id="wd-neu-link" target="_blank">
+                            Northeastern
+                    </a>
+                    <br />
+                    <Link to="/Kambaz/Account" id="wd-account-link">
+                            Account
+                    </Link>
+                    <br />
+                    <Link to="/Kambaz/Dashboard" id="wd-dashboard-link">
+                            Dashboard
+                    </Link>
+                    <br />
+                    <Link to="/Kambaz/Courses" id="wd-course-link">
+                            Courses
+                    </Link>
+                    <br />
+                    <Link to="/Kambaz/Calendar" id="wd-calendar-link">
+                            Calendar
+                    </Link>
+                    <br />
+                    <Link to="/Kambaz/Inbox" id="wd-inbox-link">
+                            Inbox
+                    </Link>
+                    <br />
+                    <Link to="/Labs" id="wd-labs-link">
+                            Labs
+                    </Link>
+                    <br />
+            </div>
+        );
 }
