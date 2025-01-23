@@ -37,11 +37,10 @@ export default function Assignments() {
                         className="wd-assignment-link"
                         href="#/Kambaz/Courses/1234/Assignments/456"
                     >
-                        A4 - React Intro
+                        A4 - ENV + HTML
                     </a>
                 </li>
             </ul>
         </div>
     );
 }
-
