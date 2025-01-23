@@ -5,11 +5,11 @@ export default function Signin() {
             <h3>Sign in</h3>
             <input placeholder="username" id="wd-username" /> <br />
             <input placeholder="password" id="wd-password" type="password" /> <br />
-            <Link to="/Kambaz/Dashboard" id="wd-signin-btn">
+            <Link id="wd-signin-btn" to="/Kambaz/Dashboard">
                 Sign in
             </Link>
             <br />
-            <Link to="/Kambaz/Account/Signup" id="wd-signup-link">
+            <Link id="wd-signup-link" to="/Kambaz/Account/Signup">
                 Sign up
             </Link>
         </div>
