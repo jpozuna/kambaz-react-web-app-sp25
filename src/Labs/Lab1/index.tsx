@@ -90,30 +90,80 @@ export default function Lab1() {
                 </div>
                 <div id="wd-tables">
                     <h4>Table Tag</h4>
-                    <table border={1} width="100%">    {/* table, border, width */}
-                        <thead>                    {/* table headings */}
-                        <tr>                        {/* table row */}
+                    <table border={1} width="75%">
+                        <thead>
+                        <tr>
                             <th>Quiz</th>
-                            {/* table heading*/}
                             <th>Topic</th>
                             <th>Date</th>
                             <th>Grade</th>
                         </tr>
                         </thead>
-                        <tbody>                    {/* table body */}
-                        <tr>                        {/* table row */}
+                        <tbody>
+                        <tr>
                             <td>Q1</td>
-                            {/* table data / cell */}
                             <td>HTML</td>
                             <td>2/3/21</td>
                             <td>85</td>
                         </tr>
-                        </tbody>
-                        <tfoot>                    {/* table row */}
                         <tr>
-                            <td colSpan={3}>Average</td>
-                            {/* column span */}
+                            <td>Q2</td>
+                            <td>CSS</td>
+                            <td>3/1/21</td>
                             <td>90</td>
+                        </tr>
+                        <tr>
+                            <td>Q3</td>
+                            <td>Java</td>
+                            <td>3/8/21</td>
+                            <td>95</td>
+                        </tr>
+                        <tr>
+                            <td>Q4</td>
+                            <td>Python</td>
+                            <td>3/15/21</td>
+                            <td>90</td>
+                        </tr>
+                        <tr>
+                            <td>Q5</td>
+                            <td>Ruby</td>
+                            <td>3/22/21</td>
+                            <td>90</td>
+                        </tr>
+                        <tr>
+                            <td>Q6</td>
+                            <td>RubyOnRails</td>
+                            <td>3/29/21</td>
+                            <td>90</td>
+                        </tr>
+                        <tr>
+                            <td>Q7</td>
+                            <td>JavaScript</td>
+                            <td>4/04/21</td>
+                            <td>90</td>
+                        </tr>
+                        <tr>
+                            <td>Q8</td>
+                            <td>React</td>
+                            <td>4/11/21</td>
+                            <td>90</td>
+                        </tr>
+                        <tr>
+                            <td>Q9</td>
+                            <td>ReactConsole</td>
+                            <td>4/16/21</td>
+                            <td>90</td>
+                        </tr>
+                        <tr>
+                            <td>Q10</td>
+                            <td>Lisa</td>
+                            <td>4/20/22</td>
+                            <td>90</td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td colSpan={4}>Average </td>
                         </tr>
                         </tfoot>
                     </table>
@@ -179,7 +229,8 @@ export default function Lab1() {
             </select>
 
             <h5>Select many</h5>
-            <label htmlFor="wd-select-many-genre"> Favorite movie genres: </label><br/>
+            <label htmlFor="wd-select-many-genre">
+                Favorite movie genres: </label><br/>
             <select multiple id="wd-select-many-genre">
                 <option value="COMEDY" selected> Comedy</option>
                 <option value="DRAMA"> Drama</option>
@@ -194,7 +245,8 @@ export default function Lab1() {
                    placeholder="jdoe@somewhere.com"
                    id="wd-text-fields-email"/><br/>
 
-            <label htmlFor="wd-text-fields-salary-start"> Starting salary:</label>
+            <label htmlFor="wd-text-fields-salary-start">
+                Starting salary:</label>
             <input type="number"
                    value="100000"
                    placeholder="1000"
@@ -212,20 +264,6 @@ export default function Lab1() {
                    value="2000-01-21"
                    id="wd-text-fields-dob"/><br/>
 
-            <label>Favorite color</label>
-            <br/>
-            <input type="radio" name="color"/>
-            Red
-            <br/>
-            <input type="radio" name="color"/>
-            Yellow
-            <br/>
-            <input type="radio" name="color"/>
-            Blue
-            <br/>
-            <input type="radio" name="color"/>
-            Green
-            <br/>
             <h4>Anchor tag</h4>
             Please
             <a href="https://www.lipsum.com" id="wd-lipsum">click here</a>
