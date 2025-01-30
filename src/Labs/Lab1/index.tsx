@@ -163,7 +163,7 @@ export default function Lab1() {
                         </tbody>
                         <tfoot>
                         <tr>
-                            <td colSpan={4}>Average </td>
+                            <td colSpan={4}>Average</td>
                         </tr>
                         </tfoot>
                     </table>
@@ -263,6 +263,17 @@ export default function Lab1() {
             <input type="date"
                    value="2000-01-21"
                    id="wd-text-fields-dob"/><br/>
+            <div id="wd-images">
+                <h4>Image tag</h4>
+                Loading an image from the internet: <br/>
+                <img id="wd-starship" width="400px"
+                     src="https://www.staradvertiser.com/wp-content/uploads/2021/08/web1_Starship-gap2.jpg"/>
+                <br/>
+                Loading a local image:
+                <br/>
+                <img id="wd-teslabot" src="images/teslabot.jpg" height="200px"/>
+            </div>
+
 
             <h4>Anchor tag</h4>
             Please

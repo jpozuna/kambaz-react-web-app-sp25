@@ -15,14 +15,18 @@ export default function Assignments() {
                     >
                         A1 - ENV + HTML
                     </a>
+                    <br/> Due May 13 at 11:59 pm
+                    <br/> 100 pts
                 </li>
                 <li className="wd-assignment-list-item">
-                    <a
+                <a
                         className="wd-assignment-link"
                         href="#/Kambaz/Courses/1234/Assignments/234"
                     >
                         A2 - CSS
                     </a>
+                    <br/> Due May 13 at 11:59 pm
+                    <br/> 100 pts
                 </li>
                 <li className="wd-assignment-list-item">
                     <a
@@ -31,6 +35,8 @@ export default function Assignments() {
                     >
                         A3 - JavaScript
                     </a>
+                    <br/> Due May 13 at 11:59 pm
+                    <br/> 100 pts
                 </li>
                 <li className="wd-assignment-list-item">
                     <a
@@ -39,6 +45,8 @@ export default function Assignments() {
                     >
                         A4 - ENV + HTML
                     </a>
+                    <br/> Due May 13 at 11:59 pm
+                    <br/> 100 pts
                 </li>
             </ul>
         </div>
