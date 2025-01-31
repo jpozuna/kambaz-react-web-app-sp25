@@ -23,9 +23,9 @@ export default function Assignments() {
                         className="wd-assignment-link"
                         href="#/Kambaz/Courses/1234/Assignments/234"
                     >
-                        A2 - CSS
+                        A2 - CSS + BOOTSTRAP
                     </a>
-                    <br/> Due May 13 at 11:59 pm
+                    <br/> Due May 20 at 11:59 pm
                     <br/> 100 pts
                 </li>
                 <li className="wd-assignment-list-item">
@@ -33,19 +33,9 @@ export default function Assignments() {
                         className="wd-assignment-link"
                         href="#/Kambaz/Courses/1234/Assignments/345"
                     >
-                        A3 - JavaScript
+                        A3 - JavaScript + REACT
                     </a>
-                    <br/> Due May 13 at 11:59 pm
-                    <br/> 100 pts
-                </li>
-                <li className="wd-assignment-list-item">
-                    <a
-                        className="wd-assignment-link"
-                        href="#/Kambaz/Courses/1234/Assignments/456"
-                    >
-                        A4 - ENV + HTML
-                    </a>
-                    <br/> Due May 13 at 11:59 pm
+                    <br/> Due May 27 at 11:59 pm
                     <br/> 100 pts
                 </li>
             </ul>

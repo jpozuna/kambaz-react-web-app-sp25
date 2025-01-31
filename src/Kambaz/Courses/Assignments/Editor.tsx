@@ -106,7 +106,6 @@ export default function AssignmentEditor() {
                     </td>
                 </tr>
                 </tbody>
-
             </table>
             <br/>
             <button type="submit">Submit Assignment</button>
