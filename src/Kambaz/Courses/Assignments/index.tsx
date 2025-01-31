@@ -15,18 +15,18 @@ export default function Assignments() {
                     >
                         A1 - ENV + HTML
                     </a>
-                    <br/> Due May 13 at 11:59 pm
-                    <br/> 100 pts
+                    <br/> Multiple Modules | <b> Not Available until</b> May 6 at 12:00 am |
+                    <br/> <b> Due </b> May 13 at 11:59 pm | 100 pts
                 </li>
                 <li className="wd-assignment-list-item">
-                <a
+                    <a
                         className="wd-assignment-link"
                         href="#/Kambaz/Courses/1234/Assignments/234"
                     >
                         A2 - CSS + BOOTSTRAP
                     </a>
-                    <br/> Due May 20 at 11:59 pm
-                    <br/> 100 pts
+                    <br/> Multiple Modules | <b> Not Available until</b> May 13 at 12:00 am |
+                    <br/> <b> Due </b> May 20 at 11:59 pm | 100 pts
                 </li>
                 <li className="wd-assignment-list-item">
                     <a
@@ -35,8 +35,8 @@ export default function Assignments() {
                     >
                         A3 - JavaScript + REACT
                     </a>
-                    <br/> Due May 27 at 11:59 pm
-                    <br/> 100 pts
+                    <br/> Multiple Modules | <b> Not Available until</b> May 20 at 12:00 am |
+                    <br/> <b> Due </b> May 27 at 11:59 pm | 100 pts
                 </li>
             </ul>
         </div>

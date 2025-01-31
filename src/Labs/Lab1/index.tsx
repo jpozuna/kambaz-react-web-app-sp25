@@ -1,6 +1,8 @@
 export default function Lab1() {
     return (
         <div>
+            <h1>Joshua Paulino Ozuna</h1>
+            <a href="https://github.com/jpozuna/kambaz-react-web-app-sp25" id="wd-github-repo">GitHub</a>
             <h2>Lab 1</h2>
 
             <h3>HTML Examples</h3>
@@ -59,6 +61,18 @@ export default function Lab1() {
                     <li> Serve and enjoy!</li>
                 </ol>
             </div>
+
+            How to make ramen:
+            <ol>
+                <li>Prepare the Broth</li>
+                <li>Add Liquids</li>
+                <li>Cook the Noodles</li>
+                <li>Add Vegetables</li>
+                <li>Assemble</li>
+                <li>Garnish</li>
+                <li>Serve Hot</li>
+            </ol>
+
             <h5>Unordered List Tag</h5>
             My favorite books (in no particular order)
             <ul id="wd-my-books">
@@ -68,6 +82,15 @@ export default function Lab1() {
                 <li>Red Mars</li>
                 <li>The Forever War</li>
             </ul>
+
+            My favorite books (in no particular order)
+            <ul id="wd-my-books">
+                <li>Invisible Man</li>
+                <li>One Piece</li>
+                <li>1984</li>
+                <li>Take Me Apart</li>
+            </ul>
+
             <div>
                 <div id="wd-forms">
                     <h4>Form Elements</h4>
@@ -163,7 +186,8 @@ export default function Lab1() {
                         </tbody>
                         <tfoot>
                         <tr>
-                            <td colSpan={4}>Average</td>
+                            <td colSpan={3}>Average</td>
+                            <td>90</td>
                         </tr>
                         </tfoot>
                     </table>
