@@ -1,15 +1,31 @@
 import { Link } from "react-router-dom";
-export default function CoursesNavigation() {
+import {ListGroup} from "react-bootstrap";
+import * as React from "react";
+export default function CourseNavigation() {
     return (
-        <div id="wd-courses-navigation">
-            <Link to="/Kambaz/Courses/1234/Home">Home</Link><br/>
-            <Link to="/Kambaz/Courses/1234/Modules">Modules</Link><br/>
-            <Link to="/Kambaz/Courses/1234/Piazza">Piazza</Link><br/>
-            <Link to="/Kambaz/Courses/1234/Zoom">Zoom</Link><br/>
-            <Link to="/Kambaz/Courses/1234/Assignments">
-                Assignments</Link><br/>
-            <Link to="/Kambaz/Courses/1234/Quizzes">Quizzes</Link><br/>
-            <Link to="/Kambaz/Courses/1234/Grades">Grades</Link><br/>
-            <Link to="/Kambaz/Courses/1234/People">People</Link><br/>
-        </div>
+        <ListGroup className="wd fs-5 rounded-0">
+            <ListGroup.Item as={Link} to="/Kambaz/Courses/1234/Home"
+                            className="active border border-0">
+                Home </ListGroup.Item >
+            <ListGroup.Item as={Link} to="/Kambaz/Courses/1234/Modules"
+                            className="text-danger border border-0">
+                Modules </ListGroup.Item >
+            <ListGroup.Item as={Link} to="/Kambaz/Courses/1234/Piazza"
+                            className="text-danger border border-0">
+                Piazza </ListGroup.Item >
+            <ListGroup.Item as={Link} to="/Kambaz/Courses/1234/Zoom"
+                            className="text-danger border border-0">
+                Zoom </ListGroup.Item >
+            <ListGroup.Item as={Link}
+                            to="/Kambaz/Courses/1234/Assignments"
+                            className="text-danger border border-0">
+                Assignments </ListGroup.Item >
+            <ListGroup.Item as={Link} to="/Kambaz/Courses/1234/Quizzes"
+                            className="text-danger border border-0">
+                Quizzes </ListGroup.Item >
+            <ListGroup.Item as={Link} to="/Kambaz/Courses/1234/People"
+                            className="text-danger border border-0" >
+                People </ListGroup.Item >
+        </ListGroup>
     );}
+

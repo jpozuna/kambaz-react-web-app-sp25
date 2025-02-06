@@ -2,7 +2,7 @@ export default function Lab1() {
     return (
         <div>
             <h1>Joshua Paulino Ozuna</h1>
-            <a href="https://github.com/jpozuna/kambaz-react-web-app-sp25" id="wd-github-repo">GitHub</a>
+
             <h2>Lab 1</h2>
 
             <h3>HTML Examples</h3>

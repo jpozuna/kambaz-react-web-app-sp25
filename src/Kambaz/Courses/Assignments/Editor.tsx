@@ -1,149 +1,124 @@
+// noinspection TypeScriptCheckImport
+import {Form, Button, Row, Col, Container, Card,} from 'react-bootstrap';
+
 export default function AssignmentEditor() {
     return (
-        <div id="wd-assignments-editor">
-            <label htmlFor="wd-name"><b>Assignment Name</b></label>
-            <br/><br/>
-            <input id="wd-name" value="A1 - ENV + HTML"/><br/><br/>
-            <textarea id="wd-description">
-        The assignment is available online Submit a link to the landing page of your Web application running on Netlify.
-      </textarea>
-            <br/> <br/>
-            <table>
-                <tbody>
-                <tr>
-                    <td align="right" valign="top">
-                        <label htmlFor="wd-points">Points</label>
-                    </td>
-                    <td>
-                        <input id="wd-points" value={100}/>
-                    </td>
-                </tr>
-                </tbody>
+        <Container fluid="lg" className="my-4">
+            <Card>
+                <Card.Body>
+                    <Form>
+                        <Row className="mb-5">
+                            <Form.Group as={Col} controlId="assignmentName">
+                                <Form.Label><b>Assignment Name</b></Form.Label>
+                                <Form.Control type="text" defaultValue="A1 - ENV + HTML" />
+                            </Form.Group>
+                        </Row>
+                        <Card>
+                            <Card.Body>
+                                <Card.Title>Description</Card.Title>
+                                <Card.Text>
+                                    The assignment is available online. Submit a link to the landing page of your Web application running on Netlify.
+                                </Card.Text>
+                                <ul>
+                                    <li>Your full name and section</li>
+                                    <li>Links to each of the lab assignments</li>
+                                    <li>Link to the Kambaz application</li>
+                                    <li>Links to all relevant source code repositories</li>
+                                </ul>
+                                The Kambaz application should include a link to navigate back to the landing page.
+                            </Card.Body>
+                        </Card>
 
-                <br/>
-                <tbody>
-                <tr>
-                    <td align="right" valign="top">
-                        <label htmlFor="wd-due-date">Assignment Group</label>
-                    </td>
-                    <td>
-                        <select id="wd-select-one-group">
-                            <option value="ASSIGNMENTS">ASSIGNMENTS</option>
-                            <option value=""></option>
-                        </select>
-                    </td>
-                </tr>
-                </tbody>
+                        <Container fluid="lg" className="my-4">
+                            <Form>
+                                <Form.Group as={Row} className="mb-3">
+                                    <Col md={12}>
+                                        <Form.Label><b>Points</b></Form.Label>
+                                        <Form.Control type="number" defaultValue={100} />
+                                    </Col>
+                                </Form.Group>
 
-                <br/>
-                <tbody>
-                <tr>
-                    <td align="right" valign="top">
-                        <label htmlFor="wd-due-date">Display Grade As</label>
-                    </td>
-                    <td>
-                        <select id="wd-select-one-group">
-                            <option value="Percentage">Percentage</option>
-                            <option value=""></option>
-                        </select>
-                    </td>
-                </tr>
-                </tbody>
+                                <Form.Group as={Row} className="mb-3">
+                                    <Col md={12}>
+                                        <Form.Label><b>Assignment Group</b></Form.Label>
+                                        <Form.Select defaultValue="ASSIGNMENTS">
+                                            <option value="ASSIGNMENTS">ASSIGNMENTS</option>
+                                        </Form.Select>
+                                    </Col>
+                                </Form.Group>
 
-                <br/>
-                <tbody>
-                <tr>
-                    <td align="right" valign="top">
-                        <label htmlFor="wd-submission-type">Submission Type</label>
-                    </td>
-                    <td>
-                        <select id="wd-select-one-group">
-                            <option value="Online">Online</option>
-                            <option value=""></option>
-                        </select>
-                    </td>
-                </tr>
-                </tbody>
+                                <Form.Group as={Row} className="mb-3">
+                                    <Col md={12}>
+                                        <Form.Label><b>Display Grade As</b></Form.Label>
+                                        <Form.Select defaultValue="Percentage">
+                                            <option value="Percentage">Percentage</option>
+                                        </Form.Select>
+                                    </Col>
+                                </Form.Group>
 
-                <br/>
-                <tbody>
-                <tr>
-                    <td align="left" valign="top">
-                        <label>Online Entry Options:</label><br/>
+                                <Form.Group as={Row} className="mb-3">
+                                    <Col md={12}>
+                                        <Form.Label><b>Submission Type</b></Form.Label>
+                                        <Form.Select defaultValue="Online">
+                                            <option value="Online">Online</option>
+                                        </Form.Select>
+                                    </Col>
+                                </Form.Group>
+                            </Form>
+                        </Container>
 
-                        <input type="checkbox" name="check-online-entry-option" id="wd-chkbox-text-entry"/>
-                        <label htmlFor= "wd-chkbox-text-entry">Text Entry</label><br/>
+                        <Card className="mb-3">
+                            <Card.Body>
+                                <Form.Group as={Row}>
+                                    <Col md={12}>
+                                        <Form.Label><b>Online Entry Options</b></Form.Label>
+                                        <Form.Check type="checkbox" label="Text Entry" />
+                                        <Form.Check type="checkbox" label="Website URL" defaultChecked />
+                                        <Form.Check type="checkbox" label="Media Recordings" />
+                                        <Form.Check type="checkbox" label="Student Annotation" />
+                                        <Form.Check type="checkbox" label="File Uploads" />
+                                    </Col>
+                                </Form.Group>
+                            </Card.Body>
+                        </Card>
 
-                        <input type="checkbox" name="check-website-url" id="wd-chkbox-website-url"/>
-                        <label htmlFor= "wd-chkbox-website-url">Website URL</label><br/>
+                        <Card className="mb-3">
+                            <Card.Body>
+                                <Row className="mb-3">
+                                    <Form.Group as={Col} controlId="assignTo">
+                                        <Form.Label>Assign To</Form.Label>
+                                        <Form.Control type="text" defaultValue="Everyone" />
+                                    </Form.Group>
+                                </Row>
+                                <Row>
+                                    <Form.Group as={Col} md={4} controlId="dueDate">
+                                        <Form.Label>Due Date</Form.Label>
+                                        <Form.Control type="date" defaultValue="2024-05-13" />
+                                    </Form.Group>
 
-                        <input type="checkbox" name="check-media-recordings" id="wd-chkbox-media-recordings"/>
-                        <label htmlFor="wd-chkbox-media-recordings">Media Recordings</label><br/>
+                                    <Form.Group as={Col} md={4} controlId="availableFrom">
+                                        <Form.Label>Available From</Form.Label>
+                                        <Form.Control type="date" defaultValue="2024-05-06" />
+                                    </Form.Group>
 
-                        <input type="checkbox" name="check-student-annotations" id="wd-chkbox-student-annotations"/>
-                        <label htmlFor= "wd-chkbox-student-annotations">Student Annotation</label><br/>
+                                    <Form.Group as={Col} md={4} controlId="availableUntil">
+                                        <Form.Label>Until</Form.Label>
+                                        <Form.Control type="date" defaultValue="2024-05-20" />
+                                    </Form.Group>
+                                </Row>
+                            </Card.Body>
+                        </Card>
 
-                        <input type="checkbox" name="check-file-uploads" id={"wd-chkbox-file-uploads"}/>
-                        <label htmlFor={"wd-chkbox-file-uploads"}>File Uploads</label><br/>
-                    </td>
-                </tr>
-                </tbody>
 
-                <br/>
-                <tbody>
-                <tr>
-                <td align="right" valign="top">
-                        <label>Assign To</label>
-                    </td>
-                    <td>
-                        <br/>
-                        <input id="wd-everyone" value={"Everyone"}/>
-                    </td>
-                </tr>
-                </tbody>
-
-                <br/>
-                <tbody>
-                <tr>
-                    <td align="right" valign="top">
-                        <label htmlFor="wd-due-date">Due Date</label>
-                    </td>
-                    <td>
-                        <br/>
-                        <input type="date"
-                               value="2024-05-13"
-                               id="wd-text-fields-dob"/><br/>
-                    </td>
-                </tr>
-                </tbody>
-
-                <br/>
-                <tbody>
-                <tr>
-                    <td align="right" valign="top">
-                    </td>
-                    <td>Available From</td>
-                    <td>Until</td>
-                </tr>
-                <tr>
-                    <td align="right" valign="top">
-                    </td>
-                    <td><input id="wd-date" type="date" value="2024-05-06"/></td>
-                    <td><input id="wd-date" type="date" value="2024-05-20"/></td>
-                </tr>
-                </tbody>
-            </table>
-
-            <hr/>
-            <table align="right">
-                <tr>
-                    <td></td>
-                    <td><button id="wd-cancel-assignment">Cancel</button>
-                    </td>
-                    <td><button id="wd-save-assignment">Save</button>
-                    </td>
-                </tr>
-            </table>
-        </div>
+                        <Row className="justify-content-end">
+                            <Col md="auto">
+                                <Button variant="secondary" className="me-2">Cancel</Button>
+                                <Button variant="danger">Save</Button>
+                            </Col>
+                        </Row>
+                    </Form>
+                </Card.Body>
+            </Card>
+        </Container>
     );
 }
