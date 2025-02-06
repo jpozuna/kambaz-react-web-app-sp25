@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
 import {ListGroup} from "react-bootstrap";
-import * as React from "react";
 export default function CourseNavigation() {
     return (
         <ListGroup className="wd fs-5 rounded-0">
