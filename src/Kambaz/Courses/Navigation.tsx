@@ -1,9 +1,13 @@
 import { Link } from "react-router-dom";
 
-export default function CourseNavigation( {
-    links = [],
-        cid = "" as string,
-        pathname = "" as string
+export default function CourseNavigation({
+                                             links = [] as string[], // Explicitly define as string[]
+                                             cid,
+                                             pathname
+                                         }: {
+    links?: string[];
+    cid: string | undefined;
+    pathname: string;
 }) {
 return (
         <nav className="d-flex flex-column">
