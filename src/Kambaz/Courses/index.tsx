@@ -1,39 +1,47 @@
-import Assignments from "./Assignments";
-import AssignmentEditor from "./Assignments/Editor";
+import { courses } from "../Database";
+import { useParams, useLocation } from "react-router";
+import { FaAlignJustify } from "react-icons/fa";
+import CourseNavigation from "./Navigation";
+import { Routes, Route } from "react-router-dom";
 import Home from "./Home";
 import Modules from "./Modules";
-import CourseNavigation from "./Navigation";
-import { Navigate, Route, Routes } from "react-router";
-import {FaAlignJustify} from "react-icons/fa";
+import Assignments from "./Assignments";
+import "../styles.css";
+import AssignmentEditor from "./Assignments/Editor.tsx";
 import PeopleTable from "./People/Table.tsx";
 
+
 export default function Courses() {
+    const { pathname } = useLocation();
+    const { cid } = useParams();
+    const course = courses.find((course) => course._id === cid);
+    const links = ["Home", "Modules", "Piazza", "Zoom", "Assignments", "Quizzes", "Grades", "People"];
+
     return (
         <div id="wd-courses">
             <h2 className="text-danger">
-                <FaAlignJustify className="me-4 fs-4 mb-1"/>
-                Course 1234 </h2>
-            <hr/>
+                <FaAlignJustify className="me-4 fs-4 mb-1" />
+                {course && course.name} &gt; {pathname.split("/")[4]}
+            </h2>
+
+            <hr />
+
             <div className="d-flex">
                 <div className="d-none d-md-block">
-                    <CourseNavigation/>
+                    <CourseNavigation links={links} cid={cid} pathname={pathname} />
                 </div>
-                <div className="flex-fill">
+
+                <div className="flex-grow-1 p-3">
                     <Routes>
-                        <Route path="/" element={<Navigate to="Home"/>}/>
-                        <Route path="Home" element={<Home/>}/>
-                        <Route path="Modules" element={<Modules/>}/>
-                        <Route path="Piazza" element={<h2>Piazza</h2>}/>
-                        <Route path="Zoom" element={<h2>Zoom</h2>}/>
-                        <Route path="Assignments" element={<Assignments/>}/>
-                        <Route path="Assignments/:aid" element={<AssignmentEditor/>}/>
+                        <Route path="Home" element={<Home />}/>
+                        <Route path="Modules" element={<Modules />}/>
+                        <Route path="Assignments/*" element={<Assignments />} />
+                        <Route path="Assignments/:assignmentSlug" element={<AssignmentEditor />} />
                         <Route path="People" element={<PeopleTable />} />
-                        <Route path="Quizzes" element={<h2>Quizzes</h2>}/>
-                        <Route path="Grades" element={<h2>Grades</h2>}/>
-                        <Route path="People" element={<h2>People</h2>}/>
                     </Routes>
+                </div>
             </div>
         </div>
-</div>
-);
+    );
 }
+

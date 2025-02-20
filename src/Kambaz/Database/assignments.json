@@ -1,0 +1,242 @@
+[
+  {
+    "course_id": "RS101",
+    "course_name": "Rocket Propulsion",
+    "assignments": [
+      {
+        "id": "A1",
+        "title": "Introduction to Rocket Propulsion",
+        "description": "Research and explain Newton’s Laws of Motion in the context of rocket propulsion. Provide real-world examples.",
+        "dueDate": "2024-03-01",
+        "availableDate": "2024-02-15",
+        "points": 100
+      },
+      {
+        "id": "A2",
+        "title": "Propellant Chemistry Analysis",
+        "description": "Compare solid, liquid, and hybrid propellants. Discuss their advantages, disadvantages, and use cases.",
+        "dueDate": "2024-03-08",
+        "availableDate": "2024-02-22",
+        "points": 100
+      },
+      {
+        "id": "A3",
+        "title": "Rocket Engine Design Project",
+        "description": "Design a basic rocket engine using theoretical calculations. Include thrust, specific impulse, and nozzle design.",
+        "dueDate": "2024-03-15",
+        "availableDate": "2024-02-29",
+        "points": 100
+      }
+    ]
+  },
+  {
+    "course_id": "RS102",
+    "course_name": "Aerodynamics",
+    "assignments": [
+      {
+        "id": "A1",
+        "title": "Airfoil Design and Lift Generation",
+        "description": "Simulate airfoil shapes and analyze how they generate lift. Provide explanations with sketches.",
+        "dueDate": "2024-03-01",
+        "availableDate": "2024-02-15",
+        "points": 100
+      },
+      {
+        "id": "A2",
+        "title": "Wind Tunnel Experiment Report",
+        "description": "Use CFD software or a physical experiment to study airflow around objects. Write a report on turbulence and drag.",
+        "dueDate": "2024-03-08",
+        "availableDate": "2024-02-22",
+        "points": 100
+      },
+      {
+        "id": "A3",
+        "title": "Aerodynamic Stability in Supersonic Flight",
+        "description": "Research how aircraft maintain stability at supersonic speeds. Present case studies of hypersonic vehicles.",
+        "dueDate": "2024-03-15",
+        "availableDate": "2024-02-29",
+        "points": 100
+      }
+    ]
+  },
+  {
+    "course_id": "RS103",
+    "course_name": "Spacecraft Design",
+    "assignments": [
+      {
+        "id": "A1",
+        "title": "Spacecraft Structural Analysis",
+        "description": "Study spacecraft materials and analyze trade-offs between weight, strength, and thermal resistance.",
+        "dueDate": "2024-03-01",
+        "availableDate": "2024-02-15",
+        "points": 100
+      },
+      {
+        "id": "A2",
+        "title": "Satellite Orbital Mechanics",
+        "description": "Calculate orbital parameters for a satellite in Low Earth Orbit (LEO). Provide velocity and fuel calculations.",
+        "dueDate": "2024-03-08",
+        "availableDate": "2024-02-22",
+        "points": 100
+      },
+      {
+        "id": "A3",
+        "title": "Mars Mission Proposal",
+        "description": "Design a conceptual spacecraft for a Mars mission. Outline propulsion, power, and life support systems.",
+        "dueDate": "2024-03-15",
+        "availableDate": "2024-02-29",
+        "points": 100
+      }
+    ]
+  },
+  {
+    "course_id": "RS104",
+    "course_name": "Organic Chemistry",
+    "assignments": [
+      {
+        "id": "A1",
+        "title": "Reaction Mechanisms",
+        "description": "Illustrate and explain SN1, SN2, E1, and E2 reactions. Provide examples and reaction conditions.",
+        "dueDate": "2024-03-01",
+        "availableDate": "2024-02-15",
+        "points": 100
+      },
+      {
+        "id": "A2",
+        "title": "Spectroscopy in Organic Chemistry",
+        "description": "Analyze IR, NMR, and Mass Spectrometry data for given compounds. Identify functional groups.",
+        "dueDate": "2024-03-08",
+        "availableDate": "2024-02-22",
+        "points": 100
+      },
+      {
+        "id": "A3",
+        "title": "Synthesis of a Pharmaceutical Drug",
+        "description": "Outline the synthesis steps for aspirin or ibuprofen. Explain the role of reagents and catalysts.",
+        "dueDate": "2024-03-15",
+        "availableDate": "2024-02-29",
+        "points": 100
+      }
+    ]
+  },
+  {
+    "course_id": "RS105",
+    "course_name": "Inorganic Chemistry",
+    "assignments": [
+      {
+        "id": "A1",
+        "title": "Coordination Complexes",
+        "description": "Analyze the structure and bonding of transition metal complexes. Discuss applications in catalysis and medicine.",
+        "dueDate": "2024-03-01",
+        "availableDate": "2024-02-15",
+        "points": 100
+      },
+      {
+        "id": "A2",
+        "title": "Crystal Field Theory",
+        "description": "Explain Crystal Field Theory and predict the electronic configurations of different metal complexes.",
+        "dueDate": "2024-03-08",
+        "availableDate": "2024-02-22",
+        "points": 100
+      },
+      {
+        "id": "A3",
+        "title": "Synthesis of an Inorganic Compound",
+        "description": "Synthesize and characterize an inorganic compound. Provide reaction mechanisms and spectroscopic analysis.",
+        "dueDate": "2024-03-15",
+        "availableDate": "2024-02-29",
+        "points": 100
+      }
+    ]
+  },
+  {
+    "course_id": "RS106",
+    "course_name": "Physical Chemistry",
+    "assignments": [
+      {
+        "id": "A1",
+        "title": "Thermodynamics and Free Energy",
+        "description": "Derive and analyze Gibbs free energy equations for chemical reactions.",
+        "dueDate": "2024-03-01",
+        "availableDate": "2024-02-15",
+        "points": 100
+      },
+      {
+        "id": "A2",
+        "title": "Quantum Chemistry Applications",
+        "description": "Apply quantum mechanics to predict molecular orbitals. Solve Schrödinger’s equation for a hydrogen atom.",
+        "dueDate": "2024-03-08",
+        "availableDate": "2024-02-22",
+        "points": 100
+      },
+      {
+        "id": "A3",
+        "title": "Reaction Kinetics Experiment",
+        "description": "Design an experiment to measure reaction rates and determine activation energy using Arrhenius plots.",
+        "dueDate": "2024-03-15",
+        "availableDate": "2024-02-29",
+        "points": 100
+      }
+    ]
+  },
+  {
+    "course_id": "RS107",
+    "course_name": "Ancient Languages and Scripts of Middle-earth",
+    "assignments": [
+      {
+        "id": "A1",
+        "title": "Elvish Writing and Phonetics",
+        "description": "Translate an English passage into Tengwar (Elvish script). Provide pronunciation rules.",
+        "dueDate": "2024-03-01",
+        "availableDate": "2024-02-15",
+        "points": 100
+      },
+      {
+        "id": "A2",
+        "title": "The Role of Language in Culture",
+        "description": "Compare Elvish and Dwarvish scripts with real-world ancient scripts. Discuss linguistic influences.",
+        "dueDate": "2024-03-08",
+        "availableDate": "2024-02-22",
+        "points": 100
+      },
+      {
+        "id": "A3",
+        "title": "Deciphering Middle-earth Inscriptions",
+        "description": "Analyze key inscriptions from Lord of the Rings. Explain grammar and meaning.",
+        "dueDate": "2024-03-15",
+        "availableDate": "2024-02-29",
+        "points": 100
+      }
+    ]
+  },
+  {
+    "course_id": "RS108",
+    "course_name": "Wizards, Elves, and Men: Inter-species Diplomacy in Middle-earth",
+    "assignments": [
+      {
+        "id": "A1",
+        "title": "The Council of Elrond Analysis",
+        "description": "Analyze the Council of Elrond and its diplomatic significance. Discuss the roles played by different races and the challenges in reaching a consensus.",
+        "points": 100,
+        "dueDate": "2024-03-01",
+        "availableDate": "2024-02-15"
+      },
+      {
+        "id": "A2",
+        "title": "War of the Last Alliance Report",
+        "description": "Research and write a report on the War of the Last Alliance. Discuss the political and diplomatic efforts that led to the formation of the alliance against Sauron.",
+        "points": 100,
+        "dueDate": "2024-03-15",
+        "availableDate": "2024-02-25"
+      },
+      {
+        "id": "A3",
+        "title": "Gandalf’s Role as a Mediator",
+        "description": "Examine Gandalf's role as a diplomatic mediator between races. Provide examples from 'The Lord of the Rings' where he fosters unity among different factions.",
+        "points": 75,
+        "dueDate": "2024-04-01",
+        "availableDate": "2024-03-10"
+      }
+    ]
+  }
+]
