@@ -1,7 +1,11 @@
 import { Link } from "react-router-dom";
 
-export default function CourseNavigation({ links = [], cid, pathname }) {
-    return (
+export default function CourseNavigation( {
+    links = [],
+        cid = "" as string,
+        pathname = "" as string
+}) {
+return (
         <nav className="d-flex flex-column">
             {links.map((link, index) => {
                 const isActive = pathname.includes(`/${link}`);
