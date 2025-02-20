@@ -38,7 +38,7 @@ export default function PeopleTable() {
                             <td className="wd-section">{user.section}</td>
                             <td className="wd-role">{user.role}</td>
                             <td className="wd-last-activity">{user.lastActivity}</td>
-                            <td className="wd-total-activity">{user.totalActivity}</td>
+                            <td className="wd-total-activity">{Number(user.totalActivity)}</td>
                         </tr>
                     ))
                 ) : (

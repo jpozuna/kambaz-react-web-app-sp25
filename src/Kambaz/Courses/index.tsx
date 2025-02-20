@@ -15,7 +15,7 @@ export default function Courses() {
     const { pathname } = useLocation();
     const { cid } = useParams();
     const course = courses.find((course) => course._id === cid);
-    const links = ["Home", "Modules", "Piazza", "Zoom", "Assignments", "Quizzes", "Grades", "People"];
+    const links: string[] = ["Home", "Modules", "Piazza", "Zoom", "Assignments", "Quizzes", "Grades", "People"];
 
     return (
         <div id="wd-courses">
