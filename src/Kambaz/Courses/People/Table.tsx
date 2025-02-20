@@ -30,7 +30,7 @@ export default function PeopleTable() {
                     enrolledUsers.map((user) => (
                         <tr key={user._id}>
                             <td className="wd-full-name text-nowrap">
-                                <FaUserCircle className="me-2 fs-1 text-secondary" />
+                                <FaUserCircle className="me-2 fs-1 text-secondary"/>
                                 <span className="wd-first-name">{user.firstName}</span>
                                 <span className="wd-last-name"> {user.lastName}</span>
                             </td>
@@ -38,12 +38,12 @@ export default function PeopleTable() {
                             <td className="wd-section">{user.section}</td>
                             <td className="wd-role">{user.role}</td>
                             <td className="wd-last-activity">{user.lastActivity}</td>
-                            <td className="wd-total-activity">{Number(user.totalActivity)}</td>
+                            <td className="wd-total-activity">{parseFloat(user.totalActivity) || 0}</td>
                         </tr>
                     ))
                 ) : (
                     <tr>
-                        <td colSpan="6" className="text-center text-muted">
+                    <td colSpan="6" className="text-center text-muted">
                             No users enrolled in this course.
                         </td>
                     </tr>
