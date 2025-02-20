@@ -11,7 +11,9 @@ export default function AssignmentEditor() {
     const assignment = course
         ? course.assignments.find(a => a.title.replace(/\s+/g, "-") === assignmentSlug)
         : null;
-
+    if (!assignment) {
+        return <h3 className="text-danger">Assignment not found</h3>;
+    }
     return (
         <Container fluid="lg" className="my-4">
             <Card>
