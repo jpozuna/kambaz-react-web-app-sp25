@@ -38,12 +38,15 @@ export default function PeopleTable() {
                             <td className="wd-section">{user.section}</td>
                             <td className="wd-role">{user.role}</td>
                             <td className="wd-last-activity">{user.lastActivity}</td>
-                            <td className="wd-total-activity">{parseFloat(user.totalActivity) || 0}</td>
+                            <td className="wd-total-activity">
+                                {typeof user.totalActivity === "number" ? user.totalActivity : parseFloat(user.totalActivity) || 0}
+                            </td>
+
                         </tr>
                     ))
                 ) : (
                     <tr>
-                    <td colSpan="6" className="text-center text-muted">
+                        <td colSpan="6" className="text-center text-muted">
                             No users enrolled in this course.
                         </td>
                     </tr>
