@@ -5,10 +5,10 @@ import * as db from "../../Database";
 
 export default function PeopleTable() {
     const { cid } = useParams();
-    const { users} = db || [];
+    const users = db.users || [];
     const enrollments = db.enrollment || [];
 
-    const enrolledUsers = users.filter((usr) =>
+    const enrolledUsers: typeof users = users.filter((usr) =>
         enrollments.some((enrollment) => enrollment.user === usr._id && enrollment.course === cid)
     );
 
@@ -46,7 +46,7 @@ export default function PeopleTable() {
                     ))
                 ) : (
                     <tr>
-                        <td colSpan="6" className="text-center text-muted">
+                        <td colSpan={6} className="text-center text-muted">
                             No users enrolled in this course.
                         </td>
                     </tr>
