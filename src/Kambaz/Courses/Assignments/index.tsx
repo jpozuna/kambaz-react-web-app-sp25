@@ -26,12 +26,26 @@ interface CourseAssignments {
     assignments: Assignment[];
 }
 
+// Type guard to ensure data is CourseAssignments[]
+const isCourseAssignments = (data: any): data is CourseAssignments =>
+    data && typeof data === "object" && "course_id" in data && "assignments" in data;
+
 export default function Assignments() {
     const { cid } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const courseAssignments = useSelector((state: RootState) => state.assignmentsReducer.assignments as CourseAssignments[]);
-    const assignmentsArray = courseAssignments.find(course => course.course_id === cid)?.assignments || [];
+
+    // ✅ Fix: Ensure Redux state is properly checked
+    const assignmentsData = useSelector((state: RootState) => state.assignmentsReducer.assignments);
+
+    // ✅ Fix: Ensure `assignmentsData` is an array before filtering
+    const courseAssignments: CourseAssignments[] = Array.isArray(assignmentsData)
+        ? assignmentsData.filter(isCourseAssignments)
+        : [];
+
+    // ✅ Get assignments for the current course
+    const assignmentsArray: Assignment[] =
+        courseAssignments.find((course) => course.course_id === cid)?.assignments || [];
 
     const [showDialog, setShowDialog] = useState(false);
     const [assignmentToDelete, setAssignmentToDelete] = useState<Assignment | null>(null);
@@ -63,7 +77,12 @@ export default function Assignments() {
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <div className="d-flex align-items-center">
                     <FaSearch className="me-2 text-muted" />
-                    <input id="wd-search-assignment" placeholder="Search..." className="form-control" style={{ width: "250px" }} />
+                    <input
+                        id="wd-search-assignment"
+                        placeholder="Search..."
+                        className="form-control"
+                        style={{ width: "250px" }}
+                    />
                 </div>
                 <div className="d-flex">
                     <button className="btn btn-outline-secondary me-2">
@@ -87,15 +106,23 @@ export default function Assignments() {
 
             <ul className="list-group">
                 {assignmentsArray.map((assignment: Assignment) => (
-                    <li key={assignment._id} className="wd-assignment-list-item list-group-item p-3 d-flex justify-content-between align-items-center" style={{ borderLeft: "10px solid green" }}>
+                    <li
+                        key={assignment._id}
+                        className="wd-assignment-list-item list-group-item p-3 d-flex justify-content-between align-items-center"
+                        style={{ borderLeft: "10px solid green" }}
+                    >
                         <div className="d-flex align-items-center">
                             <FaGripVertical className="me-2 fs-5 text-muted" />
                             <div>
-                                <Link to={`/Kambaz/Courses/${cid}/Assignments/${assignment._id}`} className="fw-bold d-block text-decoration-none text-dark">
+                                <Link
+                                    to={`/Kambaz/Courses/${cid}/Assignments/${assignment._id}`}
+                                    className="fw-bold d-block text-decoration-none text-dark"
+                                >
                                     {assignment.title}
                                 </Link>
                                 <small className="text-muted">
-                                    <span className="text-danger">{assignment.modules}</span> | <b>Not Available Until:</b> {assignment.notAvailableUntil} | <b>Due Date:</b> {assignment.dueDate}
+                                    <span className="text-danger">{assignment.modules}</span> | <b>Not Available Until:</b>{" "}
+                                    {assignment.notAvailableUntil} | <b>Due Date:</b> {assignment.dueDate}
                                 </small>
                             </div>
                         </div>
@@ -119,8 +146,12 @@ export default function Assignments() {
                                 <p>Are you sure you want to delete this assignment?</p>
                             </div>
                             <div className="modal-footer">
-                                <button type="button" className="btn btn-secondary" onClick={handleCancelDelete}>Cancel</button>
-                                <button type="button" className="btn btn-danger" onClick={handleConfirmDelete}>Delete</button>
+                                <button type="button" className="btn btn-secondary" onClick={handleCancelDelete}>
+                                    Cancel
+                                </button>
+                                <button type="button" className="btn btn-danger" onClick={handleConfirmDelete}>
+                                    Delete
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -129,4 +160,5 @@ export default function Assignments() {
         </div>
     );
 }
+
 

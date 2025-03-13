@@ -25,18 +25,34 @@ export default function AssignmentEditor() {
     const { aid, cid } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const assignments = useSelector((state: RootState) => state.assignmentsReducer.assignments as CourseAssignments[]);
 
-    const courseAssignments = assignments.find(course => course.course_id === cid);
-    const assignmentsArray = courseAssignments?.assignments || [];
+    // ✅ Correctly select assignments from Redux store
+    const courseAssignments: CourseAssignments | undefined = useSelector(
+        (state: RootState) =>
+            Array.isArray(state.assignmentsReducer.assignments)
+                ? state.assignmentsReducer.assignments.find(course => course.course_id === cid)
+                : undefined
+    );
 
+    // ✅ Always provide an array, even if courseAssignments is undefined
+    const assignmentsArray: Assignment[] = courseAssignments?.assignments ?? [];
+
+    // ✅ Provide a default assignment to prevent undefined errors
     const defaultAssignment: Assignment = {
-        _id: "", title: "", description: "", points: 100, dueDate: "2024-05-13",
-        notAvailableUntil: "2024-05-06", course: "", modules: "Multiple Modules"
+        _id: "",
+        title: "",
+        description: "",
+        points: 100,
+        dueDate: "2024-05-13",
+        notAvailableUntil: "2024-05-06",
+        course: cid || "",
+        modules: "Multiple Modules",
     };
 
-    const assignment: Assignment = assignmentsArray.find(a => a._id === aid) || defaultAssignment;
+    // ✅ Find the existing assignment or use the default
+    const assignment: Assignment = assignmentsArray.find(a => a._id === aid) ?? defaultAssignment;
 
+    // ✅ Initialize state correctly
     const [title, setTitle] = useState<string>(assignment.title);
     const [description, setDescription] = useState<string>(assignment.description);
     const [points, setPoints] = useState<number>(assignment.points);
@@ -55,9 +71,10 @@ export default function AssignmentEditor() {
         }
     }, [aid, assignment]);
 
+    // ✅ Ensure `handleSave` properly sets the assignment values
     const handleSave = () => {
         const newAssignment: Assignment = {
-            _id: aid === "new" ? title.replace(/\s+/g, '-').toLowerCase() : assignment?._id || "",
+            _id: aid === "new" ? title.replace(/\s+/g, "-").toLowerCase() : assignment?._id || "",
             title,
             description,
             dueDate,
@@ -66,11 +83,13 @@ export default function AssignmentEditor() {
             notAvailableUntil: availableFrom,
             modules,
         };
+
         if (aid === "new") {
             dispatch(addAssignment(newAssignment));
         } else {
             dispatch(updateAssignment(newAssignment));
         }
+
         navigate(`/Kanbas/Courses/${cid}/Assignments`);
     };
 
