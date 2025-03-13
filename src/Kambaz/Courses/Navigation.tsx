@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 
 export default function CourseNavigation({
-                                             links = [] as string[], // Explicitly define as string[]
+                                             links = [] as string[],
                                              cid,
                                              pathname
                                          }: {

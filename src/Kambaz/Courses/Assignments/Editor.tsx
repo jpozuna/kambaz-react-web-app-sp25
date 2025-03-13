@@ -1,78 +1,161 @@
-import Card from "react-bootstrap/Card";
-import Container from "react-bootstrap/Container";
-import { useParams, Link } from "react-router-dom";
-import { Form, Button, Row, Col } from "react-bootstrap";
-import * as db from "../../Database";
+import React, { useState, useEffect } from "react";
+import { useParams, useNavigate } from "react-router";
+import { useDispatch, useSelector } from "react-redux";
+import { addAssignment, updateAssignment } from "./reducer";
+import { RootState } from "../../store";
+
+interface Assignment {
+    _id: string;
+    title: string;
+    description: string;
+    points: number;
+    dueDate: string;
+    notAvailableUntil: string;
+    course: string;
+    modules: string;
+}
 
 export default function AssignmentEditor() {
-    const { cid, assignmentSlug } = useParams();
+    const { aid, cid } = useParams();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const assignments = useSelector((state: RootState) => state.assignmentsReducer.assignments);
+    const assignment: Assignment = assignments.find((assignment: Assignment) => assignment._id === aid) || {} as Assignment;
 
-    const course = db.assignments.find(course => course.course_id === cid);
-    const assignment = course
-        ? course.assignments.find(a => a.title.replace(/\s+/g, "-") === assignmentSlug)
-        : null;
-    if (!assignment) {
-        return <h3 className="text-danger">Assignment not found</h3>;
-    }
+    const [title, setTitle] = useState(assignment.title || "");
+    const [description, setDescription] = useState(assignment.description || "");
+    const [points, setPoints] = useState(assignment.points || 100);
+    const [dueDate, setDueDate] = useState(assignment.dueDate || "2024-05-13");
+    const [availableFrom, setAvailableFrom] = useState(assignment.notAvailableUntil || "2024-05-06");
+    const [modules, setModules] = useState(assignment.modules || "Multiple Modules");
+
+    useEffect(() => {
+        if (aid !== "new") {
+            setTitle(assignment.title || "");
+            setDescription(assignment.description || "");
+            setPoints(assignment.points || 100);
+            setDueDate(assignment.dueDate || "2024-05-13");
+            setAvailableFrom(assignment.notAvailableUntil || "2024-05-06");
+            setModules(assignment.modules || "Multiple Modules");
+        }
+    }, [aid, assignment]);
+
+    const handleSave = () => {
+        const newAssignment = {
+            _id: aid === "new" ? title.replace(/\s+/g, '-').toLowerCase() : assignment._id,
+            title,
+            description,
+            dueDate,
+            points,
+            course: cid,
+            notAvailableUntil: availableFrom,
+            modules,
+        };
+        if (aid === "new") {
+            dispatch(addAssignment(newAssignment));
+        } else {
+            dispatch(updateAssignment(newAssignment));
+        }
+        navigate(`/Kanbas/Courses/${cid}/Assignments`);
+    };
+
+    const handleCancel = () => {
+        navigate(`/Kanbas/Courses/${cid}/Assignments`);
+    };
+
     return (
-        <Container fluid="lg" className="my-4">
-            <Card>
-                <Card.Body>
-                    <Form>
-                        <Row className="mb-5">
-                            <Form.Group as={Col} controlId="assignmentName">
-                                <Form.Label><b>Assignment Name</b></Form.Label>
-                                <Form.Control type="text" defaultValue={assignment.title} readOnly />
-                            </Form.Group>
-                        </Row>
+        <div id="wd-assignments-editor" className="container mt-4">
+            <h4 className="mb-4">Assignment Name</h4>
+            <input
+                id="wd-name"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                className="form-control mb-3"
+            />
 
-                        <Card className="mb-3">
-                            <Card.Body>
-                                <Card.Title>Description</Card.Title>
-                                <Card.Text>{assignment.description}</Card.Text>
-                            </Card.Body>
-                        </Card>
+            <div className="mb-4">
+                <label htmlFor="wd-description" className="form-label">
+                    Description
+                </label>
+                <textarea
+                    id="wd-description"
+                    className="form-control"
+                    rows={5}
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                />
+            </div>
 
-                        <Form.Group as={Row} className="mb-3">
-                            <Col md={12}>
-                                <Form.Label><b>Points</b></Form.Label>
-                                <Form.Control type="number" defaultValue={assignment.points} readOnly />
-                            </Col>
-                        </Form.Group>
+            <div className="row">
+                <div className="col-md-6">
+                    <div className="mb-3">
+                        <label htmlFor="wd-points" className="form-label">
+                            Points
+                        </label>
+                        <input
+                            id="wd-points"
+                            type="number"
+                            value={points}
+                            onChange={(e) => setPoints(Number(e.target.value))}
+                            className="form-control"
+                        />
+                    </div>
+                </div>
+                <div className="col-md-6">
+                    <div className="mb-3">
+                        <label htmlFor="wd-due-date" className="form-label">
+                            Due Date
+                        </label>
+                        <input
+                            id="wd-due-date"
+                            type="date"
+                            value={dueDate}
+                            onChange={(e) => setDueDate(e.target.value)}
+                            className="form-control"
+                        />
+                    </div>
+                </div>
+            </div>
 
-                        <Card className="mb-3">
-                            <Card.Body>
-                                <Row className="mb-3">
-                                    <Form.Group as={Col} controlId="assignTo">
-                                        <Form.Label>Assign To</Form.Label>
-                                        <Form.Control type="text" defaultValue="" readOnly />
-                                    </Form.Group>
-                                </Row>
+            <div className="row">
+                <div className="col-md-6">
+                    <div className="mb-3">
+                        <label htmlFor="wd-available-from" className="form-label">
+                            Available From
+                        </label>
+                        <input
+                            id="wd-available-from"
+                            type="date"
+                            value={availableFrom}
+                            onChange={(e) => setAvailableFrom(e.target.value)}
+                            className="form-control"
+                        />
+                    </div>
+                </div>
+                <div className="col-md-6">
+                    <div className="mb-3">
+                        <label htmlFor="wd-modules" className="form-label">
+                            Modules
+                        </label>
+                        <input
+                            id="wd-modules"
+                            type="text"
+                            value={modules}
+                            onChange={(e) => setModules(e.target.value)}
+                            className="form-control"
+                        />
+                    </div>
+                </div>
+            </div>
 
-                                <Row className="mb-3">
-                                    <Col md={6}>
-                                        <Form.Label><b>Due Date</b></Form.Label>
-                                        <Form.Control type="date" defaultValue={assignment.dueDate} readOnly />
-                                    </Col>
-                                </Row>
-                                <Col md={6}>
-                                    <Form.Label><b>Available Date</b></Form.Label>
-                                    <Form.Control type="date" defaultValue={assignment.availableDate} readOnly />
-                                </Col>
-                            </Card.Body>
-                        </Card>
-
-                        <Row className="justify-content-end">
-                            <Col md="auto">
-                                <Link to={`/Kambaz/Courses/${cid}/Assignments`} className="btn btn-secondary me-2">
-                                    Cancel
-                                </Link>
-                                <Button variant="danger">Save</Button>
-                            </Col>
-                        </Row>
-                    </Form>
-                </Card.Body>
-            </Card>
-        </Container>
+            <div className="d-flex justify-content-end mt-3">
+                <button id="wd-cancel" className="btn btn-secondary me-2" onClick={handleCancel}>
+                    Cancel
+                </button>
+                <button id="wd-save" className="btn btn-danger" onClick={handleSave}>
+                    Save
+                </button>
+            </div>
+        </div>
     );
 }
