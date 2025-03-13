@@ -9,9 +9,12 @@ export default function AccountNavigation() {
     const { pathname } = useLocation();
     return (
         <div id="wd-account-navigation">
-            <Link to={`/Kambaz/Account/Signin`}> Signin </Link> <br />
-            <Link to={`/Kambaz/Account/Signup`}> Signup </Link> <br />
-            <Link to={`/Kambaz/Account/Profile`}> Profile </Link> <br />
+            {links.map((link) => (
+                <Link key={link} to={`/Kambaz/Account/${link}`}
+                      className={pathname.endsWith(link) ? "active" : ""}>
+                    {link}
+                </Link>
+            ))}
         </div>
     );
 }

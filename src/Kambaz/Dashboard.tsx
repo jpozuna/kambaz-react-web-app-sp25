@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import * as db from "./Database";
 import { enroll, unenroll, toggleEnrollmentView } from "./Account/reducer";
