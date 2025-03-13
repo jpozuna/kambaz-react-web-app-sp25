@@ -3,7 +3,7 @@ import {Button, Dropdown} from "react-bootstrap";
 import {FaPlus} from "react-icons/fa";
 import GreenCheckmark from "./GreenCheckmark.tsx";
 import {SlashCircle} from "react-bootstrap-icons";
-import React, {useState} from "react";
+import {useState} from "react";
 export default function ModulesControls(
     { moduleName, setModuleName, addModule }:
         { moduleName: string; setModuleName: (title: string) => void; addModule: () => void; }) {

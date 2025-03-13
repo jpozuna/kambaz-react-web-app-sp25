@@ -11,10 +11,12 @@ import ArrayStateVariable from "./ArrayStateVariable.tsx";
 import ParentStateComponent from "./ParentStateComponent.tsx";
 import ChildStateComponent from "./ChildStateComponent.tsx";
 import ReduxExamples from "./ReduxExamples";
+import {useState} from "react";
 export default function Lab4() {
     function sayHello() {
         alert("Hello");
     }
+    const [counter, setCounter] = useState(123);
     return (
         <div id="wd-passing-functions">
             <h2>Lab 4</h2>
@@ -29,7 +31,7 @@ export default function Lab4() {
             <ObjectStateVariable />
             <ArrayStateVariable />
             <ParentStateComponent />
-            <ChildStateComponent />
+            <ChildStateComponent  counter={counter} setCounter={setCounter} />
             <ReduxExamples />
         </div>
     );}

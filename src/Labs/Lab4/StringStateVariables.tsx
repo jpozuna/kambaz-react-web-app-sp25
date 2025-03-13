@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import {FormControl} from "react-bootstrap";
 
 export default function StringStateVariables() {
@@ -8,6 +8,6 @@ export default function StringStateVariables() {
             <h2>String State Variables</h2>
             <p>{firstName}</p>
             <FormControl
-                defaultValue={firstName}
+                value={firstName}
                 onChange={(e) => setFirstName(e.target.value)}/>
             <hr/></div>);}

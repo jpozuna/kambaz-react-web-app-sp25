@@ -52,10 +52,11 @@ export default function Modules() {
                                 <>
                                     <ModuleControlButtons
                                         moduleId={module._id}
-                                        deleteModule={(moduleId) => {
+                                        deleteModule={(moduleId: string) => {
                                             dispatch(deleteModule(moduleId));
                                         }}
-                                        editModule={(moduleId) => dispatch(editModule(moduleId))}
+                                        editModule={(moduleId: string) => dispatch(editModule(moduleId))}
+
                                     />
 
                                     <button

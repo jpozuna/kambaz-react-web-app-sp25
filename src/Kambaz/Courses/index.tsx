@@ -22,7 +22,7 @@ export default function Courses({ courses }: { courses: any[]; }) {
             <hr/>
             <div className="d-flex">
                 <div className="d-none d-md-block">
-                    <CoursesNavigation/>
+                    <CoursesNavigation cid={cid} pathname={location.pathname}/>
                 </div>
                 <div className="flex-fill">
                     <Routes>

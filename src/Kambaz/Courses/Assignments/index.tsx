@@ -3,10 +3,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams, useNavigate } from "react-router";
 import { deleteAssignment } from "./reducer";
 import { RootState } from "../../store";
-import {FaEllipsisV, FaGripVertical, FaSearch, FaTrash} from "react-icons/fa";
-import {FaPlus} from "react-icons/fa6";
-import {BsPlus} from "react-icons/bs";
-import {Link} from "react-router-dom";
+import { FaEllipsisV, FaGripVertical, FaSearch, FaTrash } from "react-icons/fa";
+import { FaPlus } from "react-icons/fa6";
+import { BsPlus } from "react-icons/bs";
+import { Link } from "react-router-dom";
 import GreenCheckmark from "../Modules/GreenCheckmark.tsx";
 
 interface Assignment {
@@ -20,17 +20,24 @@ interface Assignment {
     modules: string;
 }
 
+interface CourseAssignments {
+    course_id: string;
+    course_name: string;
+    assignments: Assignment[];
+}
+
 export default function Assignments() {
     const { cid } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const assignments = useSelector((state: RootState) => state.assignmentsReducer.assignments);
+    const courseAssignments = useSelector((state: RootState) => state.assignmentsReducer.assignments as CourseAssignments[]);
+    const assignmentsArray = courseAssignments.find(course => course.course_id === cid)?.assignments || [];
+
     const [showDialog, setShowDialog] = useState(false);
     const [assignmentToDelete, setAssignmentToDelete] = useState<Assignment | null>(null);
 
     const handleAddAssignment = () => {
-        const newAssignmentId = "new";
-        navigate(`/Kambaz/Courses/${cid}/Assignments/${newAssignmentId}`);
+        navigate(`/Kambaz/Courses/${cid}/Assignments/new`);
     };
 
     const handleDeleteClick = (assignment: Assignment) => {
@@ -56,12 +63,7 @@ export default function Assignments() {
             <div className="d-flex justify-content-between align-items-center mb-4">
                 <div className="d-flex align-items-center">
                     <FaSearch className="me-2 text-muted" />
-                    <input
-                        id="wd-search-assignment"
-                        placeholder="Search..."
-                        className="form-control"
-                        style={{ width: "250px" }}
-                    />
+                    <input id="wd-search-assignment" placeholder="Search..." className="form-control" style={{ width: "250px" }} />
                 </div>
                 <div className="d-flex">
                     <button className="btn btn-outline-secondary me-2">
@@ -74,9 +76,7 @@ export default function Assignments() {
             </div>
 
             <div className="d-flex justify-content-between align-items-center mb-3 bg-light p-3">
-                <h4 className="fw-bold mb-0" style={{ fontSize: "1.5rem" }}>
-                    Assignments
-                </h4>
+                <h4 className="fw-bold mb-0" style={{ fontSize: "1.5rem" }}>Assignments</h4>
                 <div className="d-flex align-items-center">
                     <span className="badge rounded-pill bg-light border me-2 px-3 py-2 text-dark">
                         40% of Total <BsPlus className="ms-1" />
@@ -85,36 +85,26 @@ export default function Assignments() {
                 </div>
             </div>
 
-            <ul id="wd-assignment-list" className="list-group">
-                {assignments
-                    .filter((assignment: Assignment) => assignment.course === cid)
-                    .map((assignment: Assignment) => (
-                        <li
-                            key={assignment._id}
-                            className="wd-assignment-list-item list-group-item p-3 d-flex justify-content-between align-items-center"
-                            style={{ borderLeft: "10px solid green" }}
-                        >
-                            <div className="d-flex align-items-center">
-                                <FaGripVertical className="me-2 fs-5 text-muted" />
-                                <div>
-                                    <Link
-                                        to={`/Kambaz/Courses/${cid}/Assignments/${assignment._id}`}
-                                        className="fw-bold d-block text-decoration-none text-dark"
-                                    >
-                                        {assignment.title}
-                                    </Link>
-                                    <small className="text-muted">
-                                        <span className="text-danger">{assignment.modules}</span> | <b>Not
-                                        Available Until:</b> {assignment.notAvailableUntil} | <b>Due Date:</b> {assignment.dueDate}
-                                    </small>
-                                </div>
+            <ul className="list-group">
+                {assignmentsArray.map((assignment: Assignment) => (
+                    <li key={assignment._id} className="wd-assignment-list-item list-group-item p-3 d-flex justify-content-between align-items-center" style={{ borderLeft: "10px solid green" }}>
+                        <div className="d-flex align-items-center">
+                            <FaGripVertical className="me-2 fs-5 text-muted" />
+                            <div>
+                                <Link to={`/Kambaz/Courses/${cid}/Assignments/${assignment._id}`} className="fw-bold d-block text-decoration-none text-dark">
+                                    {assignment.title}
+                                </Link>
+                                <small className="text-muted">
+                                    <span className="text-danger">{assignment.modules}</span> | <b>Not Available Until:</b> {assignment.notAvailableUntil} | <b>Due Date:</b> {assignment.dueDate}
+                                </small>
                             </div>
-                            <div className="d-flex align-items-center">
-                                <GreenCheckmark />
-                                <FaTrash className="ms-2 text-danger" onClick={() => handleDeleteClick(assignment)} />
-                            </div>
-                        </li>
-                    ))}
+                        </div>
+                        <div className="d-flex align-items-center">
+                            <GreenCheckmark />
+                            <FaTrash className="ms-2 text-danger" onClick={() => handleDeleteClick(assignment)} />
+                        </div>
+                    </li>
+                ))}
             </ul>
 
             {showDialog && (

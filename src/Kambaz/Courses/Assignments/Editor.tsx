@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import { addAssignment, updateAssignment } from "./reducer";
@@ -15,39 +15,54 @@ interface Assignment {
     modules: string;
 }
 
+interface CourseAssignments {
+    course_id: string;
+    course_name: string;
+    assignments: Assignment[];
+}
+
 export default function AssignmentEditor() {
     const { aid, cid } = useParams();
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const assignments = useSelector((state: RootState) => state.assignmentsReducer.assignments);
-    const assignment: Assignment = assignments.find((assignment: Assignment) => assignment._id === aid) || {} as Assignment;
+    const assignments = useSelector((state: RootState) => state.assignmentsReducer.assignments as CourseAssignments[]);
 
-    const [title, setTitle] = useState(assignment.title || "");
-    const [description, setDescription] = useState(assignment.description || "");
-    const [points, setPoints] = useState(assignment.points || 100);
-    const [dueDate, setDueDate] = useState(assignment.dueDate || "2024-05-13");
-    const [availableFrom, setAvailableFrom] = useState(assignment.notAvailableUntil || "2024-05-06");
-    const [modules, setModules] = useState(assignment.modules || "Multiple Modules");
+    const courseAssignments = assignments.find(course => course.course_id === cid);
+    const assignmentsArray = courseAssignments?.assignments || [];
+
+    const defaultAssignment: Assignment = {
+        _id: "", title: "", description: "", points: 100, dueDate: "2024-05-13",
+        notAvailableUntil: "2024-05-06", course: "", modules: "Multiple Modules"
+    };
+
+    const assignment: Assignment = assignmentsArray.find(a => a._id === aid) || defaultAssignment;
+
+    const [title, setTitle] = useState<string>(assignment.title);
+    const [description, setDescription] = useState<string>(assignment.description);
+    const [points, setPoints] = useState<number>(assignment.points);
+    const [dueDate, setDueDate] = useState<string>(assignment.dueDate);
+    const [availableFrom, setAvailableFrom] = useState<string>(assignment.notAvailableUntil);
+    const [modules, setModules] = useState<string>(assignment.modules);
 
     useEffect(() => {
-        if (aid !== "new") {
-            setTitle(assignment.title || "");
-            setDescription(assignment.description || "");
-            setPoints(assignment.points || 100);
-            setDueDate(assignment.dueDate || "2024-05-13");
-            setAvailableFrom(assignment.notAvailableUntil || "2024-05-06");
-            setModules(assignment.modules || "Multiple Modules");
+        if (aid !== "new" && assignment) {
+            setTitle(assignment.title);
+            setDescription(assignment.description);
+            setPoints(assignment.points);
+            setDueDate(assignment.dueDate);
+            setAvailableFrom(assignment.notAvailableUntil);
+            setModules(assignment.modules);
         }
     }, [aid, assignment]);
 
     const handleSave = () => {
-        const newAssignment = {
-            _id: aid === "new" ? title.replace(/\s+/g, '-').toLowerCase() : assignment._id,
+        const newAssignment: Assignment = {
+            _id: aid === "new" ? title.replace(/\s+/g, '-').toLowerCase() : assignment?._id || "",
             title,
             description,
             dueDate,
             points,
-            course: cid,
+            course: cid || "",
             notAvailableUntil: availableFrom,
             modules,
         };

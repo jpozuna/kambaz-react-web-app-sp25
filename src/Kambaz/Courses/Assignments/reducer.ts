@@ -1,23 +1,40 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { assignments } from "../../Database";
 
-const initialState = {
-    assignments: assignments,
+interface Assignment {
+    _id: string;
+    title: string;
+    description: string;
+    points: number;
+    dueDate: string;
+    notAvailableUntil: string;
+    course: string;
+    modules: string;
+}
+
+interface CourseAssignments {
+    course_id: string;
+    course_name: string;
+    assignments: Assignment[];
+}
+
+const initialState: { assignments: Assignment[] } = {
+    assignments: assignments as Assignment[],
 };
 
 const assignmentsSlice = createSlice({
     name: "assignments",
     initialState,
     reducers: {
-        addAssignment: (state, { payload: assignment }) => {
+        addAssignment: (state, { payload: assignment }: { payload: Assignment }) => {
             state.assignments = [...state.assignments, assignment];
         },
-        deleteAssignment: (state, { payload: assignmentId }) => {
+        deleteAssignment: (state, { payload: assignmentId }: { payload: string }) => {
             state.assignments = state.assignments.filter(
                 (a) => a._id !== assignmentId
             );
         },
-        updateAssignment: (state, { payload: assignment }) => {
+        updateAssignment: (state, { payload: assignment }: { payload: Assignment }) => {
             state.assignments = state.assignments.map((a) =>
                 a._id === assignment._id ? assignment : a
             );

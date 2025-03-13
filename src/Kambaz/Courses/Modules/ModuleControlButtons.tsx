@@ -3,10 +3,14 @@ import GreenCheckmark from "./GreenCheckmark";
 import {PlusLg} from "react-bootstrap-icons";
 import { FaTrash } from "react-icons/fa";
 import { FaPencil } from "react-icons/fa6";
+import {editModule} from "./reducer.ts";
 
 export default function ModuleControlButtons(
     { moduleId, deleteModule }: { moduleId: string;
-        deleteModule: (moduleId: string) => void; }
+        deleteModule: (moduleId: string) => void;
+        editModule: (moduleId: string) => void;
+    }
+
 ) {
     return (
         <div className="float-end">
