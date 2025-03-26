@@ -15,12 +15,6 @@ interface Assignment {
     modules: string;
 }
 
-interface CourseAssignments {
-    course_id: string;
-    course_name: string;
-    assignments: Assignment[];
-}
-
 export default function AssignmentEditor() {
     const { aid, cid } = useParams();
     const navigate = useNavigate();
@@ -43,10 +37,9 @@ export default function AssignmentEditor() {
         modules: "Multiple Modules",
     };
 
-    // ✅ Find the existing assignment or use the default
+   
     const assignment: Assignment = assignmentsArray.find(a => a._id === aid) ?? defaultAssignment;
 
-    // ✅ Initialize state correctly
     const [title, setTitle] = useState<string>(assignment.title);
     const [description, setDescription] = useState<string>(assignment.description);
     const [points, setPoints] = useState<number>(assignment.points);
@@ -65,7 +58,6 @@ export default function AssignmentEditor() {
         }
     }, [aid, assignment]);
 
-    // ✅ Ensure `handleSave` properly sets the assignment values
     const handleSave = () => {
         const newAssignment: Assignment = {
             _id: aid === "new" ? title.replace(/\s+/g, "-").toLowerCase() : assignment?._id || "",

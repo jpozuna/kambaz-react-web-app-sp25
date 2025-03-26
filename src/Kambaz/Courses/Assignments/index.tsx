@@ -20,16 +20,6 @@ interface Assignment {
     modules: string;
 }
 
-interface CourseAssignments {
-    course_id: string;
-    course_name: string;
-    assignments: Assignment[];
-}
-
-// Type guard to ensure data is CourseAssignments[]
-const isCourseAssignments = (data: any): data is CourseAssignments =>
-    data && typeof data === "object" && "course_id" in data && "assignments" in data;
-
 export default function Assignments() {
     const { cid } = useParams();
     const navigate = useNavigate();
