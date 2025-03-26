@@ -26,18 +26,12 @@ export default function AssignmentEditor() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    // ✅ Correctly select assignments from Redux store
-    const courseAssignments: CourseAssignments | undefined = useSelector(
-        (state: RootState) =>
-            Array.isArray(state.assignmentsReducer.assignments)
-                ? state.assignmentsReducer.assignments.find(course => course.course_id === cid)
-                : undefined
+    const assignments: Assignment[] = useSelector(
+        (state: RootState) => state.assignmentsReducer.assignments
     );
 
-    // ✅ Always provide an array, even if courseAssignments is undefined
-    const assignmentsArray: Assignment[] = courseAssignments?.assignments ?? [];
+    const assignmentsArray: Assignment[] = assignments.filter(a => a.course === cid);
 
-    // ✅ Provide a default assignment to prevent undefined errors
     const defaultAssignment: Assignment = {
         _id: "",
         title: "",

@@ -38,14 +38,10 @@ export default function Assignments() {
     // ✅ Fix: Ensure Redux state is properly checked
     const assignmentsData = useSelector((state: RootState) => state.assignmentsReducer.assignments);
 
-    // ✅ Fix: Ensure `assignmentsData` is an array before filtering
-    const courseAssignments: CourseAssignments[] = Array.isArray(assignmentsData)
-        ? assignmentsData.filter(isCourseAssignments)
+    // Get assignments for the current course
+    const assignmentsArray: Assignment[] = Array.isArray(assignmentsData)
+        ? assignmentsData.filter(a => a.course === cid)
         : [];
-
-    // ✅ Get assignments for the current course
-    const assignmentsArray: Assignment[] =
-        courseAssignments.find((course) => course.course_id === cid)?.assignments || [];
 
     const [showDialog, setShowDialog] = useState(false);
     const [assignmentToDelete, setAssignmentToDelete] = useState<Assignment | null>(null);

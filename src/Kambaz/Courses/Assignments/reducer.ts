@@ -12,14 +12,19 @@ interface Assignment {
     modules: string;
 }
 
-interface CourseAssignments {
-    course_id: string;
-    course_name: string;
-    assignments: Assignment[];
-}
-
 const initialState: { assignments: Assignment[] } = {
-    assignments: assignments as Assignment[],
+    assignments: assignments.flatMap(course => 
+        course.assignments.map(a => ({
+            _id: a.id,
+            title: a.title,
+            description: a.description,
+            points: a.points,
+            dueDate: a.dueDate,
+            notAvailableUntil: a.availableDate,
+            course: course.course_id,
+            modules: "Multiple Modules"
+        }))
+    ),
 };
 
 const assignmentsSlice = createSlice({
