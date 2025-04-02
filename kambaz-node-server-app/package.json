@@ -1,0 +1,16 @@
+{
+  "name": "kambaz-node-server-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": ""
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "Node.js HTTP Web server for the Kambaz application",
+  "dependencies": {
+    "express": "^4.21.2",
+    "uuid": "^11.1.0"
+  }
+}
