@@ -1,13 +1,11 @@
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import { deleteAssignment } from "./reducer";
-import { RootState } from "../../store";
 import { FaEllipsisV, FaGripVertical, FaSearch, FaTrash } from "react-icons/fa";
 import { FaPlus } from "react-icons/fa6";
 import { BsPlus } from "react-icons/bs";
 import { Link } from "react-router-dom";
 import GreenCheckmark from "../Modules/GreenCheckmark.tsx";
+import * as client from "../../Assignments/client";
 
 interface Assignment {
     _id: string;
@@ -15,26 +13,28 @@ interface Assignment {
     description: string;
     points: number;
     dueDate: string;
-    notAvailableUntil: string;
+    availableDate: string;
     course: string;
-    modules: string;
+    module?: string;
 }
 
 export default function Assignments() {
     const { cid } = useParams();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
-
-    // ✅ Fix: Ensure Redux state is properly checked
-    const assignmentsData = useSelector((state: RootState) => state.assignmentsReducer.assignments);
-
-    // Get assignments for the current course
-    const assignmentsArray: Assignment[] = Array.isArray(assignmentsData)
-        ? assignmentsData.filter(a => a.course === cid)
-        : [];
-
+    const [assignments, setAssignments] = useState<Assignment[]>([]);
     const [showDialog, setShowDialog] = useState(false);
     const [assignmentToDelete, setAssignmentToDelete] = useState<Assignment | null>(null);
+
+    const fetchAssignments = async () => {
+        if (cid) {
+            const assignments = await client.findAssignmentsForCourse(cid);
+            setAssignments(assignments);
+        }
+    };
+
+    useEffect(() => {
+        fetchAssignments();
+    }, [cid]);
 
     const handleAddAssignment = () => {
         navigate(`/Kambaz/Courses/${cid}/Assignments/new`);
@@ -45,11 +45,16 @@ export default function Assignments() {
         setShowDialog(true);
     };
 
-    const handleConfirmDelete = () => {
+    const handleConfirmDelete = async () => {
         if (assignmentToDelete) {
-            dispatch(deleteAssignment(assignmentToDelete._id));
-            setShowDialog(false);
-            setAssignmentToDelete(null);
+            try {
+                await client.deleteAssignment(assignmentToDelete._id);
+                setAssignments(assignments.filter(a => a._id !== assignmentToDelete._id));
+                setShowDialog(false);
+                setAssignmentToDelete(null);
+            } catch (error) {
+                console.error("Failed to delete assignment:", error);
+            }
         }
     };
 
@@ -91,7 +96,7 @@ export default function Assignments() {
             </div>
 
             <ul className="list-group">
-                {assignmentsArray.map((assignment: Assignment) => (
+                {assignments.map((assignment: Assignment) => (
                     <li
                         key={assignment._id}
                         className="wd-assignment-list-item list-group-item p-3 d-flex justify-content-between align-items-center"
@@ -107,8 +112,8 @@ export default function Assignments() {
                                     {assignment.title}
                                 </Link>
                                 <small className="text-muted">
-                                    <span className="text-danger">{assignment.modules}</span> | <b>Not Available Until:</b>{" "}
-                                    {assignment.notAvailableUntil} | <b>Due Date:</b> {assignment.dueDate}
+                                    <span className="text-danger">{assignment.module || "Multiple Modules"}</span> | <b>Not Available Until:</b>{" "}
+                                    {assignment.availableDate} | <b>Due Date:</b> {assignment.dueDate}
                                 </small>
                             </div>
                         </div>

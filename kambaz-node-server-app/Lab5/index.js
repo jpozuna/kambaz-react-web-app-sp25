@@ -1,5 +1,7 @@
 import PathParameters from "./PathParameters.js";
 import QueryParameters from "./QueryParameters.js";
+import modules from "../Kambaz/Database/modules.js";
+import assignments from "../Kambaz/Database/assignments.js";
 
 export default function Lab5(app) {
     app.get("/lab5/welcome", (req, res) => {
@@ -10,116 +12,102 @@ export default function Lab5(app) {
 
     // Module routes
     app.get("/lab5/module", (req, res) => {
-        const module = {
-            id: "CS5610",
-            name: "Web Development",
-            description: "Learn modern web development with React and Node.js",
-            course: "CS5610"
-        };
+        const module = modules.find(m => m._id === "M101");
+        if (!module) {
+            res.status(404).json({ error: "Module not found" });
+            return;
+        }
         res.json(module);
     });
 
     app.get("/lab5/module/name", (req, res) => {
-        const module = {
-            id: "CS5610",
-            name: "Web Development",
-            description: "Learn modern web development with React and Node.js",
-            course: "CS5610"
-        };
+        const module = modules.find(m => m._id === "M101");
+        if (!module) {
+            res.status(404).json({ error: "Module not found" });
+            return;
+        }
         res.send(module.name);
     });
 
-    app.get("/lab5/module/name/:newName", (req, res) => {
-        const module = {
-            id: "CS5610",
-            name: req.params.newName,
-            description: "Learn modern web development with React and Node.js",
-            course: "CS5610"
-        };
+    app.put("/lab5/module/name/:newName", (req, res) => {
+        const module = modules.find(m => m._id === "M101");
+        if (!module) {
+            res.status(404).json({ error: "Module not found" });
+            return;
+        }
+        module.name = req.params.newName;
         res.json(module);
     });
 
-    app.get("/lab5/module/description/:newDescription", (req, res) => {
-        const module = {
-            id: "CS5610",
-            name: "Web Development",
-            description: req.params.newDescription,
-            course: "CS5610"
-        };
+    app.put("/lab5/module/description/:newDescription", (req, res) => {
+        const module = modules.find(m => m._id === "M101");
+        if (!module) {
+            res.status(404).json({ error: "Module not found" });
+            return;
+        }
+        module.description = req.params.newDescription;
         res.json(module);
     });
 
     // Assignment update routes
-    app.get("/lab5/assignment/score/:newScore", (req, res) => {
-        const assignment = {
-            id: 1,
-            title: "NodeJS Assignment",
-            description: "Create a NodeJS server with ExpressJS",
-            due: "2021-10-10",
-            completed: false,
-            score: parseInt(req.params.newScore)
-        };
+    app.put("/lab5/assignment/score/:newScore", (req, res) => {
+        const courseAssignments = assignments.find(a => a.course_id === "RS101");
+        if (!courseAssignments) {
+            res.status(404).json({ error: "Course assignments not found" });
+            return;
+        }
+        const assignment = courseAssignments.assignments.find(a => a.id === "A1");
+        if (!assignment) {
+            res.status(404).json({ error: "Assignment not found" });
+            return;
+        }
+        assignment.points = parseInt(req.params.newScore);
         res.json(assignment);
     });
 
-    app.get("/lab5/assignment/completed/:completed", (req, res) => {
-        const assignment = {
-            id: 1,
-            title: "NodeJS Assignment",
-            description: "Create a NodeJS server with ExpressJS",
-            due: "2021-10-10",
-            completed: req.params.completed === "true",
-            score: 0
-        };
+    app.put("/lab5/assignment/completed/:completed", (req, res) => {
+        const courseAssignments = assignments.find(a => a.course_id === "RS101");
+        if (!courseAssignments) {
+            res.status(404).json({ error: "Course assignments not found" });
+            return;
+        }
+        const assignment = courseAssignments.assignments.find(a => a.id === "A1");
+        if (!assignment) {
+            res.status(404).json({ error: "Assignment not found" });
+            return;
+        }
+        assignment.completed = req.params.completed === "true";
         res.json(assignment);
     });
 
     // Todo routes
-    app.get("/lab5/todos/:id/completed/:completed", (req, res) => {
-        const todos = [
-            {
-                id: 1,
-                title: "Learn Node.js",
-                description: "Learn how to create a Node.js server",
-                completed: req.params.completed === "true"
-            },
-            {
-                id: 2,
-                title: "Learn React",
-                description: "Learn how to create a React application",
-                completed: false
-            }
-        ];
-        const todo = todos.find(t => t.id === parseInt(req.params.id));
-        if (todo) {
-            todo.completed = req.params.completed === "true";
-            res.json(todos);
-        } else {
-            res.status(404).json({ error: "Todo not found" });
+    app.put("/lab5/todos/:id/completed/:completed", (req, res) => {
+        const courseAssignments = assignments.find(a => a.course_id === "RS101");
+        if (!courseAssignments) {
+            res.status(404).json({ error: "Course assignments not found" });
+            return;
         }
+        const assignment = courseAssignments.assignments.find(a => a.id === req.params.id);
+        if (!assignment) {
+            res.status(404).json({ error: "Assignment not found" });
+            return;
+        }
+        assignment.completed = req.params.completed === "true";
+        res.json(courseAssignments.assignments);
     });
 
-    app.get("/lab5/todos/:id/description/:description", (req, res) => {
-        const todos = [
-            {
-                id: 1,
-                title: "Learn Node.js",
-                description: req.params.description,
-                completed: false
-            },
-            {
-                id: 2,
-                title: "Learn React",
-                description: "Learn how to create a React application",
-                completed: false
-            }
-        ];
-        const todo = todos.find(t => t.id === parseInt(req.params.id));
-        if (todo) {
-            todo.description = req.params.description;
-            res.json(todos);
-        } else {
-            res.status(404).json({ error: "Todo not found" });
+    app.put("/lab5/todos/:id/description/:description", (req, res) => {
+        const courseAssignments = assignments.find(a => a.course_id === "RS101");
+        if (!courseAssignments) {
+            res.status(404).json({ error: "Course assignments not found" });
+            return;
         }
+        const assignment = courseAssignments.assignments.find(a => a.id === req.params.id);
+        if (!assignment) {
+            res.status(404).json({ error: "Assignment not found" });
+            return;
+        }
+        assignment.description = req.params.description;
+        res.json(courseAssignments.assignments);
     });
 } 

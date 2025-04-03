@@ -1,6 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import * as db from "./Database";
 import { enroll, unenroll, toggleEnrollmentView } from "./Account/reducer";
 import { Button } from "react-bootstrap";
 
@@ -23,7 +22,6 @@ export default function Dashboard({
                                   }: DashboardProps) {
     {
         const {currentUser, enrollmentsViewAll} = useSelector((state: any) => state.accountReducer);
-        const {enrollment} = db;
         useNavigate();
         const dispatch = useDispatch();
 
@@ -72,9 +70,7 @@ export default function Dashboard({
                 <h2 id="wd-dashboard-published">Published Courses ({courses.length})</h2>
                 <hr/>
                 <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-                    {courses.filter((course: { _id: string; name: string; description: string }) =>
-                        enrollmentsViewAll || isEnrolled(course._id)
-                    ).map((course: { _id: string; name: string; description: string }) => (
+                    {courses.map((course: { _id: string; name: string; description: string }) => (
                         <div key={course._id} className="col" style={{width: "260px"}}>
                             <div className="card rounded-3 overflow-hidden">
                                 <Link to={`/Kambaz/Courses/${course._id}/Home`}

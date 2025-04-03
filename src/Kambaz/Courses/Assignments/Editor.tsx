@@ -1,8 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
-import { addAssignment, updateAssignment } from "./reducer";
-import { RootState } from "../../store";
+import * as client from "../../Assignments/client";
 
 interface Assignment {
     _id: string;
@@ -10,77 +8,84 @@ interface Assignment {
     description: string;
     points: number;
     dueDate: string;
-    notAvailableUntil: string;
+    availableDate: string;
     course: string;
-    modules: string;
+    module?: string;
 }
 
 export default function AssignmentEditor() {
     const { aid, cid } = useParams();
     const navigate = useNavigate();
-    const dispatch = useDispatch();
 
-    const assignments: Assignment[] = useSelector(
-        (state: RootState) => state.assignmentsReducer.assignments
-    );
-
-    const assignmentsArray: Assignment[] = assignments.filter(a => a.course === cid);
-
-    const defaultAssignment: Assignment = {
-        _id: "",
+    const defaultAssignment: Omit<Assignment, "_id"> = {
         title: "",
         description: "",
         points: 100,
         dueDate: "2024-05-13",
-        notAvailableUntil: "2024-05-06",
+        availableDate: "2024-05-06",
         course: cid || "",
-        modules: "Multiple Modules",
+        module: "Multiple Modules",
     };
 
-   
-    const assignment: Assignment = assignmentsArray.find(a => a._id === aid) ?? defaultAssignment;
-
-    const [title, setTitle] = useState<string>(assignment.title);
-    const [description, setDescription] = useState<string>(assignment.description);
-    const [points, setPoints] = useState<number>(assignment.points);
-    const [dueDate, setDueDate] = useState<string>(assignment.dueDate);
-    const [availableFrom, setAvailableFrom] = useState<string>(assignment.notAvailableUntil);
-    const [modules, setModules] = useState<string>(assignment.modules);
+    const [title, setTitle] = useState<string>("");
+    const [description, setDescription] = useState<string>("");
+    const [points, setPoints] = useState<number>(100);
+    const [dueDate, setDueDate] = useState<string>("2024-05-13");
+    const [availableFrom, setAvailableFrom] = useState<string>("2024-05-06");
+    const [module, setModule] = useState<string>("Multiple Modules");
 
     useEffect(() => {
-        if (aid !== "new" && assignment) {
-            setTitle(assignment.title);
-            setDescription(assignment.description);
-            setPoints(assignment.points);
-            setDueDate(assignment.dueDate);
-            setAvailableFrom(assignment.notAvailableUntil);
-            setModules(assignment.modules);
-        }
-    }, [aid, assignment]);
-
-    const handleSave = () => {
-        const newAssignment: Assignment = {
-            _id: aid === "new" ? title.replace(/\s+/g, "-").toLowerCase() : assignment?._id || "",
-            title,
-            description,
-            dueDate,
-            points,
-            course: cid || "",
-            notAvailableUntil: availableFrom,
-            modules,
+        const fetchAssignment = async () => {
+            if (aid && aid !== "new" && cid) {
+                try {
+                    const assignments = await client.findAssignmentsForCourse(cid);
+                    const assignment = assignments.find((a: Assignment) => a._id === aid);
+                    if (assignment) {
+                        setTitle(assignment.title);
+                        setDescription(assignment.description);
+                        setPoints(assignment.points);
+                        setDueDate(assignment.dueDate);
+                        setAvailableFrom(assignment.availableDate);
+                        setModule(assignment.module || "Multiple Modules");
+                    }
+                } catch (error) {
+                    console.error("Failed to fetch assignment:", error);
+                }
+            }
         };
+        fetchAssignment();
+    }, [aid, cid]);
 
-        if (aid === "new") {
-            dispatch(addAssignment(newAssignment));
-        } else {
-            dispatch(updateAssignment(newAssignment));
+    const handleSave = async () => {
+        if (!cid) return;
+        
+        try {
+            const newAssignment = {
+                title,
+                description,
+                points,
+                dueDate,
+                availableDate: availableFrom,
+                course: cid,
+                module,
+            };
+
+            if (aid === "new") {
+                await client.createAssignment(newAssignment);
+            } else if (aid) {
+                await client.updateAssignment(aid, newAssignment);
+            }
+
+            navigate(`/Kambaz/Courses/${cid}/Assignments`);
+        } catch (error) {
+            console.error("Failed to save assignment:", error);
         }
-
-        navigate(`/Kanbas/Courses/${cid}/Assignments`);
     };
 
     const handleCancel = () => {
-        navigate(`/Kanbas/Courses/${cid}/Assignments`);
+        if (cid) {
+            navigate(`/Kambaz/Courses/${cid}/Assignments`);
+        }
     };
 
     return (
@@ -160,8 +165,8 @@ export default function AssignmentEditor() {
                         <input
                             id="wd-modules"
                             type="text"
-                            value={modules}
-                            onChange={(e) => setModules(e.target.value)}
+                            value={module}
+                            onChange={(e) => setModule(e.target.value)}
                             className="form-control"
                         />
                     </div>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="93eb9bca-ab42-475c-8892-5681ca99aa8e" name="http://localhost:5173" url="http://localhost5173">
+        <fileTransfer mountedRoot="C:\Users\ojice\kambaz-react-web-app-sp25" accessType="MOUNT" port="0" />
+      </webServer>
+    </option>
+  </component>
+</project>
