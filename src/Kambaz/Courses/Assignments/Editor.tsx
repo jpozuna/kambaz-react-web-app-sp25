@@ -27,12 +27,12 @@ export default function AssignmentEditor() {
         module: "Multiple Modules",
     };
 
-    const [title, setTitle] = useState<string>("");
-    const [description, setDescription] = useState<string>("");
-    const [points, setPoints] = useState<number>(100);
-    const [dueDate, setDueDate] = useState<string>("2024-05-13");
-    const [availableFrom, setAvailableFrom] = useState<string>("2024-05-06");
-    const [module, setModule] = useState<string>("Multiple Modules");
+    const [title, setTitle] = useState<string>(defaultAssignment.title);
+    const [description, setDescription] = useState<string>(defaultAssignment.description);
+    const [points, setPoints] = useState<number>(defaultAssignment.points);
+    const [dueDate, setDueDate] = useState<string>(defaultAssignment.dueDate);
+    const [availableFrom, setAvailableFrom] = useState<string>(defaultAssignment.availableDate);
+    const [module, setModule] = useState<string>(defaultAssignment.module || "Multiple Modules");
 
     useEffect(() => {
         const fetchAssignment = async () => {

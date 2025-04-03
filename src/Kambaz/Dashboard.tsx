@@ -24,14 +24,13 @@ export default function Dashboard({
         const {currentUser, enrollmentsViewAll} = useSelector((state: any) => state.accountReducer);
         useNavigate();
         const dispatch = useDispatch();
-
         const isEnrolled = (courseId: string) => {
-            if (!Array.isArray(enrollment)) {
-                console.error("Enrollments is undefined or not an array:", enrollment);
+            if (!Array.isArray(currentUser.enrollments)) {
+                console.error("Enrollments is undefined or not an array:", currentUser.enrollments);
                 return false;
             }
-            return enrollment.some(
-                (enrollment) => enrollment.user === currentUser._id && enrollment.course === courseId
+            return currentUser.enrollments.some(
+                (enrollment: {user: string, course: string}) => enrollment.user === currentUser._id && enrollment.course === courseId
             );
         };
         const handleEnroll = (courseId: string) => {

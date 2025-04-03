@@ -1,21 +1,14 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import * as client from "./client";
 import { FormControl, ListGroup } from "react-bootstrap";
 import { FaTrash } from "react-icons/fa";
 import { FaPlusCircle } from "react-icons/fa";
 import { TiDelete } from "react-icons/ti";
 import { FaPencil } from "react-icons/fa6";
-import axios from "axios";
 
 export default function WorkingWithArraysAsynchronously() {
     const [todos, setTodos] = useState<any[]>([]);
     const [errorMessage, setErrorMessage] = useState(null);
-
-    const editTodo = (todo: any) => {
-        const updatedTodos = todos.map(
-          (t) => t.id === todo.id ? { ...todo, editing: true } : t );
-        setTodos(updatedTodos);
-    };
 
     const updateTodo = async (todo: any) => {
         try {
