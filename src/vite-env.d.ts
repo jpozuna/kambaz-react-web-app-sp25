@@ -17,3 +17,20 @@ declare module 'react-dom/client' {
   }
   export function createRoot(container: Element | DocumentFragment): Root;
 }
+
+declare module 'vite' {
+  import { Plugin } from 'vite';
+  export function defineConfig(config: any): any;
+  export interface Plugin {
+    name: string;
+    enforce?: 'pre' | 'post';
+    apply?: 'serve' | 'build';
+    config?: (config: any) => any;
+    transform?: (code: string, id: string) => string | void;
+  }
+}
+
+declare module '@vitejs/plugin-react' {
+  import { Plugin } from 'vite';
+  export default function react(): Plugin;
+}
