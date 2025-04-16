@@ -10,9 +10,7 @@ export default function Signin() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
     const signin = () => {
-        const user = db.users.find(
-            (u: any) => u.username === credentials.username && u.password === credentials.password);
-        if (!user) return;
+        const user = { username: credentials.username }; // Mock user object
         dispatch(setCurrentUser(user));
         navigate("/Kambaz/Dashboard");
     };

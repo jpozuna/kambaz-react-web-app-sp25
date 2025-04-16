@@ -1,6 +1,9 @@
 import axios from "axios";
 
-const API_BASE = "http://localhost:4000/api";
+console.log("REMOTE_SERVER ENV:", import.meta.env.VITE_REMOTE_SERVER);p
+const API_BASE = import.meta.env.VITE_REMOTE_SERVER;
+
+
 
 export interface Enrollment {
   _id: string;

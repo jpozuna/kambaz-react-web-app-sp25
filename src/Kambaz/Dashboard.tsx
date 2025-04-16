@@ -60,7 +60,7 @@ export default function Dashboard({
                 <br/>
                 <input value={course?.name || ""} className="form-control mb-2"
                        onChange={(e) => setCourse({...course, name: e.target.value})}/>
-                <textarea value={course.description} className="form-control"
+                <textarea value={course?.description || ""} className="form-control"
                           onChange={(e) => setCourse({...course, description: e.target.value})}/>
                 <hr/>
                 <button className="btn btn-primary float-end" onClick={handleToggleView}>
@@ -69,7 +69,8 @@ export default function Dashboard({
                 <h2 id="wd-dashboard-published">Published Courses ({courses.length})</h2>
                 <hr/>
                 <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-                    {courses.map((course: { _id: string; name: string; description: string }) => (
+                    {Array.isArray(courses) &&
+                        courses.map((course: { _id: string; name: string; description: string }) => (
                         <div key={course._id} className="col" style={{width: "260px"}}>
                             <div className="card rounded-3 overflow-hidden">
                                 <Link to={`/Kambaz/Courses/${course._id}/Home`}
@@ -113,6 +114,4 @@ export default function Dashboard({
             </div>
         );
     }
-
-
 }

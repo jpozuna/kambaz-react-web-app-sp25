@@ -3,7 +3,7 @@ import * as dao from "./dao.js";
 export default function UserRoutes(app) {
   const findAllUsers = async (req, res) => {
     try {
-      const users = await dao.findAllUsers();
+      const users = dao.findAllUsers();
       res.json(users);
     } catch (error) {
       res.status(500).json({ error: "Failed to find users" });
@@ -27,7 +27,7 @@ export default function UserRoutes(app) {
   const findUsersByRole = async (req, res) => {
     try {
       const { role } = req.params;
-      const users = await dao.findUsersByRole(role);
+      const users = dao.findUsersByRole(role);
       res.json(users);
     } catch (error) {
       res.status(500).json({ error: "Failed to find users" });
@@ -37,7 +37,7 @@ export default function UserRoutes(app) {
   const findUsersByCourse = async (req, res) => {
     try {
       const { courseId } = req.params;
-      const users = await dao.findUsersByCourse(courseId);
+      const users = dao.findUsersByCourse(courseId);
       res.json(users);
     } catch (error) {
       res.status(500).json({ error: "Failed to find users" });
@@ -82,7 +82,7 @@ export default function UserRoutes(app) {
         return;
       }
       const { userId } = req.params;
-      const success = await dao.deleteUser(userId);
+      const success = dao.deleteUser(userId);
       if (!success) {
         res.status(404).json({ error: "User not found" });
         return;
@@ -100,7 +100,7 @@ export default function UserRoutes(app) {
         return;
       }
       const { userId, courseId } = req.params;
-      const success = await dao.enrollUserInCourse(userId, courseId);
+      const success = dao.enrollUserInCourse(userId, courseId);
       if (!success) {
         res.status(400).json({ error: "Failed to enroll user in course" });
         return;
@@ -118,7 +118,7 @@ export default function UserRoutes(app) {
         return;
       }
       const { userId, courseId } = req.params;
-      const success = await dao.unenrollUserFromCourse(userId, courseId);
+      const success = dao.unenrollUserFromCourse(userId, courseId);
       if (!success) {
         res.status(400).json({ error: "Failed to unenroll user from course" });
         return;
@@ -129,13 +129,51 @@ export default function UserRoutes(app) {
     }
   };
 
+  const findCurrentUserCourses = (req, res) => {
+    const user = req.session.currentUser;
+    if (!user) {
+      return res.status(401).json({ error: "Not logged in" });
+    }
+    res.json(user.courses || []);
+  };
+
+  const login = async (req, res) => {
+    const { username, password } = req.body;
+    const user = await dao.findUserByCredentials(username, password);
+    if (user) {
+      req.session.currentUser = user;  // 🪄 This is the magic line
+      res.json(user);
+    } else {
+      res.status(401).json({ error: "Invalid credentials" });
+    }
+  };
+
+  const logout = (req, res) => {
+    req.session.destroy();
+    res.sendStatus(200);
+  };
+
+  const profile = (req, res) => {
+    const user = req.session.currentUser;
+    if (!user) {
+      res.status(404).json({ error: "User not found" });
+      return;
+    }
+    res.json(user);
+  };
+
   app.get("/api/users", findAllUsers);
   app.get("/api/users/:userId", findUserById);
   app.get("/api/users/role/:role", findUsersByRole);
   app.get("/api/courses/:courseId/users", findUsersByCourse);
+  app.get("/api/users/current/courses", findCurrentUserCourses);
+
   app.post("/api/users", createUser);
   app.put("/api/users/:userId", updateUser);
   app.delete("/api/users/:userId", deleteUser);
   app.post("/api/users/:userId/courses/:courseId", enrollUserInCourse);
   app.delete("/api/users/:userId/courses/:courseId", unenrollUserFromCourse);
+  app.post("/api/users/login", login);
+  app.post("/api/users/logout", logout);
+  app.post("/api/users/profile", profile);
 } 

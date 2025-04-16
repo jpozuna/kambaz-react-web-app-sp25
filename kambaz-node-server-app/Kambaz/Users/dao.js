@@ -69,4 +69,7 @@ export function unenrollUserFromCourse(userId, courseId) {
     }
   }
   return false;
-} 
+}
+export function findUserByCredentials(username, password) {
+  return users.find((user) => user.username === username && user.password === password);
+}
