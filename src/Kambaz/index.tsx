@@ -18,15 +18,29 @@ export default function Kambaz() {
     const { currentUser } = useSelector((state: any) => state.accountReducer);
 
     const updateCourse = async () => {
-        if (course) {
+        if (!course || !course._id) {
+            console.warn("⛔ Can't update: course is missing or has no ID.");
+            return;
+        }
+
+        try {
             await courseClient.updateCourse(course);
+            const updatedCourses = await userClient.findMyCourses();
+            setCourses(updatedCourses);
+        } catch (e) {
+            console.error("⛔ Update failed:", e);
         }
     };
 
+
     const addNewCourse = async () => {
-        const newCourse = await userClient.createCourse({});
-        setCourses([ ...courses, newCourse ]);
-    };    
+        if (!currentUser) return;
+        const newCourse = await courseClient.createCourse({ name: "", description: "" });
+        // Optional: enroll the user in the course if your logic supports it
+        await courseClient.enrollInCourse(newCourse._id, currentUser._id);
+        setCourses([...courses, newCourse]);
+    };
+
 
     const deleteCourse = async (courseId: string) => {
         await courseClient.deleteCourse(courseId);

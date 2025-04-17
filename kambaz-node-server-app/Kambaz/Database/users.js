@@ -11,7 +11,8 @@ export default [
     loginId: "001234561S",
     section: "S101",
     lastActivity: "2020-10-01",
-    totalActivity: "1021"
+    totalActivity: "1021",
+    courses: ["RS101", "RS107", "RS108"]
   },
   {
     _id: "234",
@@ -25,7 +26,8 @@ export default [
     loginId: "001234562S",
     section: "S101",
     lastActivity: "2020-11-02",
-    totalActivity: "1532"
+    totalActivity: "1532",
+    courses: ["RS102", "RS103", "RS108"]
   },
   {
     _id: "345",
@@ -53,7 +55,8 @@ export default [
     loginId: "001234565S",
     section: "S101",
     lastActivity: "2020-12-01",
-    totalActivity: "1122"
+    totalActivity: "1122",
+    courses: ["RS103", "RS104", "RS105"]
   },
   {
     _id: "567",

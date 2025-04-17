@@ -2,6 +2,7 @@ import express from "express";
 import session from "express-session";
 import cors from "cors";
 import "dotenv/config";
+import cookieParser from "cookie-parser";
 
 import Lab5 from "./Lab5/index.js";
 import UserRoutes from "./Kambaz/Users/routes.js";
@@ -15,26 +16,29 @@ const app = express();
 // ✅ Middleware
 app.use(cors({
                credentials: true,
-               origin: process.env.NETLIFY_URL || "http://localhost:5173",
+               origin: "http://localhost:5173", // ✅ MUST match exactly
              }));
+
 
 const sessionOptions = {
   secret: process.env.SESSION_SECRET || "kambaz",
   resave: false,
   saveUninitialized: false,
+  cookie: {
+    sameSite: "lax", // 🔥 this is the magic
+    secure: false,   // for localhost, must be false
+  },
 };
 
 if (process.env.NODE_ENV !== "development") {
   sessionOptions.proxy = true;
-  sessionOptions.cookie = {
-    sameSite: "none",
-    secure: true,
-    domain: process.env.NODE_SERVER_DOMAIN,
-  };
+  sessionOptions.cookie.domain = process.env.NODE_SERVER_DOMAIN;
 }
 
+app.use(cookieParser());
 app.use(session(sessionOptions));
 app.use(express.json());
+
 
 // ✅ Routes
 Lab5(app);

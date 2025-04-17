@@ -28,7 +28,7 @@ export default function Courses({ courses }: { courses: any[]; }) {
                     <Routes>
                         <Route path="/" element={<Navigate to="Home"/>}/>
                         <Route path="Home" element={<Home/>}/>
-                        <Route path="Modules" element={<Modules/>}/>
+                        <Route path="/Courses/:cid/Modules" element={<Modules />} />
                         <Route path="Assignments" element={<Assignments/>}/>
                         <Route path="Assignments/:aid" element={<AssignmentEditor/>}/>
                         <Route path="People" element={<PeopleTable/>}/>

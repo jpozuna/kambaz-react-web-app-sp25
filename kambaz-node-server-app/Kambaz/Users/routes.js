@@ -46,7 +46,9 @@ export default function UserRoutes(app) {
 
   const createUser = async (req, res) => {
     try {
-      if (!req.session.currentUser || req.session.currentUser.role !== "FACULTY") {
+      if (!currentUser ||
+          (currentUser._id !== userId && !["FACULTY", "ADMIN"].includes(currentUser.role))
+      ) {
         res.status(403).json({ error: "Only faculty can create users" });
         return;
       }
@@ -129,51 +131,62 @@ export default function UserRoutes(app) {
     }
   };
 
-  const findCurrentUserCourses = (req, res) => {
+  const profile = (req, res) => {
+    console.log("💡 /profile called");
+    console.log("Session:", req.session);
     const user = req.session.currentUser;
     if (!user) {
-      return res.status(401).json({ error: "Not logged in" });
+      return res.status(404).json({ error: "User not found" });
     }
-    res.json(user.courses || []);
+    res.json(user);
+  };
+
+
+  const findCurrentUserCourses = (req, res) => {
+    console.log("Current courses request, current user:", req.session.currentUser?.username);
+    const user = req.session.currentUser;
+    if (!user) {
+      console.log("No user in session");
+      res.status(401).json({ error: "Not logged in" });
+      return;
+    }
+    const courses = dao.findUserCourses(req.session.currentUser._id);
+    res.json(courses);
   };
 
   const login = async (req, res) => {
     const { username, password } = req.body;
+    console.log("Login attempt for user:", username);
+    
     const user = await dao.findUserByCredentials(username, password);
     if (user) {
-      req.session.currentUser = user;  // 🪄 This is the magic line
+      console.log("User found, setting session");
+      req.session.currentUser = user;
       res.json(user);
     } else {
+      console.log("Invalid credentials");
       res.status(401).json({ error: "Invalid credentials" });
     }
   };
 
   const logout = (req, res) => {
+    console.log("Logging out user:", req.session.currentUser?.username);
     req.session.destroy();
     res.sendStatus(200);
   };
 
-  const profile = (req, res) => {
-    const user = req.session.currentUser;
-    if (!user) {
-      res.status(404).json({ error: "User not found" });
-      return;
-    }
-    res.json(user);
-  };
-
+  // Register routes in order of specificity
+  app.post("/api/users/signin", login);
+  app.post("/api/users/signout", logout);
+  app.post("/api/users/profile", profile);
+  app.get("/api/users/current/courses", findCurrentUserCourses);
   app.get("/api/users", findAllUsers);
   app.get("/api/users/:userId", findUserById);
   app.get("/api/users/role/:role", findUsersByRole);
-  app.get("/api/courses/:courseId/users", findUsersByCourse);
-  app.get("/api/users/current/courses", findCurrentUserCourses);
-
+  app.get("/api/users/course/:courseId", findUsersByCourse);
   app.post("/api/users", createUser);
   app.put("/api/users/:userId", updateUser);
   app.delete("/api/users/:userId", deleteUser);
   app.post("/api/users/:userId/courses/:courseId", enrollUserInCourse);
   app.delete("/api/users/:userId/courses/:courseId", unenrollUserFromCourse);
-  app.post("/api/users/login", login);
-  app.post("/api/users/logout", logout);
-  app.post("/api/users/profile", profile);
 } 

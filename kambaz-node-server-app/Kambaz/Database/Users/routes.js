@@ -1,11 +1,9 @@
 import * as dao from "./dao.js";
 
 export default function UserRoutes(app) {
-  // GLOBAL state
-  let currentUser = null;
-
   // HANDLERS
-  const createUser = (req, res) => {  };
+
+  const createUser = (req, res) => { };
   const deleteUser = (req, res) => { };
   const findAllUsers = (req, res) => { };
   const findUserById = (req, res) => { };
@@ -14,38 +12,44 @@ export default function UserRoutes(app) {
     const userId = req.params.userId;
     const userUpdates = req.body;
     dao.updateUser(userId, userUpdates);
-    currentUser = dao.findUserById(userId);
-    res.json(currentUser);
+    const updatedUser = dao.findUserById(userId);
+    req.session.currentUser = updatedUser; // ✅ update session with latest data
+    console.log("🔄 Updated session user:", req.session.currentUser?.username);
+    res.json(updatedUser);
   };
 
   const signup = (req, res) => {
-    const user = dao.findUserByUsername(req.body.username);
-    if (user) {
+    const existing = dao.findUserByUsername(req.body.username);
+    if (existing) {
       return res.status(400).json({ message: "Username already in use" });
     }
-    currentUser = dao.createUser(req.body);
-    req.session.currentUser = currentUser;
-    res.json(currentUser);
+    const newUser = dao.createUser(req.body);
+    req.session.currentUser = newUser;
+    console.log("✅ Signed up:", newUser.username);
+    res.json(newUser);
   };
 
   const signin = (req, res) => {
     const { username, password } = req.body;
     const user = dao.findUserByCredentials(username, password);
     if (!user) {
+      console.log("❌ Invalid login for:", username);
       return res.status(401).json({ error: "Invalid credentials" });
     }
     req.session.currentUser = user; // ✅ store user in session
+    console.log("🔐 Logged in:", user.username);
     res.json(user);
   };
 
   const signout = (req, res) => {
+    console.log("👋 Logging out:", req.session.currentUser?.username);
     req.session.destroy();
     res.sendStatus(200);
   };
 
   const profile = (req, res) => {
     console.log("💡 /profile called");
-    console.log("Session:", req.session);
+    console.log("👉 Session:", req.session);
     const user = req.session.currentUser;
     if (!user) {
       return res.status(404).json({ error: "User not found" });
@@ -55,13 +59,14 @@ export default function UserRoutes(app) {
 
   const findCurrentUserCourses = (req, res) => {
     const user = req.session.currentUser;
+    console.log("📚 /current/courses request for:", user?.username);
     if (!user) {
       return res.status(401).json({ error: "Not logged in" });
     }
     res.json(user.courses || []);
   };
 
-  console.log("Registering routes")
+  console.log("✅ Registering user routes...");
   // ROUTE REGISTRATION
   app.post("/api/users", createUser);
   app.get("/api/users", findAllUsers);

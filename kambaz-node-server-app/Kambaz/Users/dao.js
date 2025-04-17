@@ -71,5 +71,14 @@ export function unenrollUserFromCourse(userId, courseId) {
   return false;
 }
 export function findUserByCredentials(username, password) {
-  return users.find((user) => user.username === username && user.password === password);
+  return users.find((user) =>
+                        user.username === username && user.password === password
+  );
 }
+
+export function findUserCourses(userId) {
+  const user = users.find((u) => u._id === userId);
+  return user?.courses || [];
+}
+
+

@@ -1,50 +1,57 @@
 import axios from "axios";
 
-interface Course {
-    _id: string;
-    name: string;
-    number: string;
-    startDate: string;
-    endDate: string;
-    image: string;
-}
-
-const axiosWithCredentials = axios.create({ withCredentials: true });
-
-export const createCourse = async (course: Partial<Course>): Promise<Course> => {
-    const { data } = await axiosWithCredentials.post(`${USERS_API}/current/courses`, course);
-    return data;
-};
-    
+// 🔧 Constants
 export const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
 export const USERS_API = `${REMOTE_SERVER}/api/users`;
 
-export const findMyCourses = async (): Promise<Course[]> => {
-    const { data } = await axiosWithCredentials.get(`${USERS_API}/current/courses`);
+// ✅ Axios instance with credentials
+const axiosWithCredentials = axios.create({
+    baseURL: USERS_API,
+    withCredentials: true,
+});
+
+// ✅ Create a course (fix: should be POST, not GET)
+export const createCourse = async (course: any) => {
+    const { data } = await axiosWithCredentials.post(`/current/courses`, course);
     return data;
 };
-  
-export const signin = async (credentials: any) => {
-  const response = await axiosWithCredentials.post(`${USERS_API}/signin`, credentials);
-  return response.data;
-};
-export const profile = async () => {
-    const response = await axios.post(`${USERS_API}/profile`, {}, {
-        withCredentials: true
-    });
-    return response.data;
-};
-export const signup = async (user: any) => {
-  const response = await axiosWithCredentials.post(`${USERS_API}/signup`, user);
-  return response.data;
-};
-export const signout = async () => {
-  const response = await axiosWithCredentials.post(`${USERS_API}/signout`);
-  return response.data;
-};
-export const updateUser = async (user: any) => {
-  const response = await axiosWithCredentials.put(`${USERS_API}/${user._id}`, user);
-  return response.data;
+
+// ✅ Fetch courses
+export const findMyCourses = async () => {
+    const { data } = await axiosWithCredentials.get(`/current/courses`);
+    return data;
 };
 
-  
+// ✅ Signin
+export const signin = async (credentials: any) => {
+    const { data } = await axiosWithCredentials.post(`/signin`, credentials);
+    return data;
+};
+
+// ✅ Profile
+export const profile = async () => {
+    console.log("📤 Sending request to /profile");
+    const { data } = await axiosWithCredentials.post(`/profile`);
+    console.log("✅ Got profile response", data);
+    return data;
+};
+
+// ✅ Signup
+export const signup = async (user: any) => {
+    const { data } = await axiosWithCredentials.post(`/signup`, user);
+    return data;
+};
+
+// ✅ Signout
+export const signout = async () => {
+    const { data } = await axiosWithCredentials.post(`/signout`);
+    return data;
+};
+
+// ✅ Update user
+export const updateUser = async (user: any) => {
+    const { data } = await axiosWithCredentials.put(`/${user._id}`, user);
+    return data;
+};
+
+

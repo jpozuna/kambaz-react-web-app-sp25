@@ -2,29 +2,56 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { setCurrentUser } from "./reducer";
 import { useDispatch } from "react-redux";
-import * as db from "../Database";
-import {Button, FormControl} from "react-bootstrap";
+import * as client from "./client";
 
 export default function Signin() {
-    const [credentials, setCredentials] = useState<any>({});
+    const [credentials, setCredentials] = useState({ username: "", password: "" });
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const signin = () => {
-        const user = { username: credentials.username }; // Mock user object
-        dispatch(setCurrentUser(user));
-        navigate("/Kambaz/Dashboard");
+
+    const signin = async (e: React.FormEvent) => {
+        e.preventDefault();
+        try {
+            const user = await client.signin(credentials);
+            if (!user) return;
+            dispatch(setCurrentUser(user));
+            navigate("/Kambaz/Dashboard");
+        } catch (err) {
+            console.error("Signin failed", err);
+        }
     };
 
     return (
-        <div id="wd-signin-screen">
-            <h1>Sign in</h1>
-            <FormControl defaultValue={credentials.username}
-                         onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-                         className="mb-2" placeholder="username" id="wd-username" />
-            <FormControl defaultValue={credentials.password}
-                         onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-                         className="mb-2" placeholder="password" type="password" id="wd-password" />
-            <Button onClick={signin} id="wd-signin-btn" className="w-100" > Sign in </Button>
-            <Link id="wd-signup-link" to="/Kambaz/Account/Signup"> Sign up </Link>
+        <div className="container mt-4" style={{ maxWidth: 400 }}>
+            <h2 className="mb-4">Sign In</h2>
+            <form onSubmit={signin}>
+                <div className="form-group mb-3">
+                    <label htmlFor="username">Username</label>
+                    <input
+                        id="username"
+                        type="text"
+                        className="form-control"
+                        value={credentials.username}
+                        onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+                    />
+                </div>
+                <div className="form-group mb-3">
+                    <label htmlFor="password">Password</label>
+                    <input
+                        id="password"
+                        type="password"
+                        className="form-control"
+                        value={credentials.password}
+                        onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                    />
+                </div>
+                <button type="submit" className="btn btn-primary w-100">
+                    Sign In
+                </button>
+            </form>
+            <p className="mt-3 text-center">
+                Don't have an account? <Link to="/account/signup">Sign up</Link>
+            </p>
         </div>
-    );}
+    );
+}

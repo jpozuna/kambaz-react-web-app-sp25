@@ -1,51 +1,12 @@
 import axios from "axios";
+const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
 
-console.log("REMOTE_SERVER ENV:", import.meta.env.VITE_REMOTE_SERVER);
-const API_BASE = import.meta.env.VITE_REMOTE_SERVER;
-
-
-export interface Assignment {
-  _id: string;
-  title: string;
-  description: string;
-  dueDate: string;
-  availableDate: string;
-  points: number;
-  course: string;
-  module?: string;
-}
-
-export const findAllAssignments = async () => {
-  const response = await axios.get(`${API_BASE}/assignments`, {
-    withCredentials: true,
-  });
-  return response.data;
-};
-
-export const findAssignmentsForCourse = async (courseId: string) => {
-  const response = await axios.get(`${API_BASE}/courses/${courseId}/assignments`, {
-    withCredentials: true,
-  });
-  return response.data;
-};
-
-export const createAssignment = async (assignment: Omit<Assignment, "_id">) => {
-  const response = await axios.post(`${API_BASE}/assignments`, assignment, {
-    withCredentials: true,
-  });
-  return response.data;
-};
-
-export const updateAssignment = async (assignmentId: string, assignment: Partial<Assignment>) => {
-  const response = await axios.put(`${API_BASE}/assignments/${assignmentId}`, assignment, {
-    withCredentials: true,
-  });
-  return response.data;
-};
-
+const ASSIGNMENTS_API = `${REMOTE_SERVER}/api/Assignments`;
 export const deleteAssignment = async (assignmentId: string) => {
-  const response = await axios.delete(`${API_BASE}/assignments/${assignmentId}`, {
-    withCredentials: true,
-  });
+  const response = await axios.delete(`${ASSIGNMENTS_API}/${assignmentId}`);
   return response.data;
-}; 
+};
+export const updateAssignment = async (assignment: any) => {
+  const { data } = await axios.put(`${ASSIGNMENTS_API}/${assignment._id}`, assignment);
+  return data;
+};

@@ -1,29 +1,23 @@
 import * as client from "./client";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { setCurrentUser } from "./reducer";
 import { useDispatch } from "react-redux";
-
-interface SessionProps {
-  children: React.ReactNode;
-}
-
-const Session: React.FC<SessionProps> = ({ children }) => {
+export default function Session({ children }: { children: any }) {
   const [pending, setPending] = useState(true);
   const dispatch = useDispatch();
   const fetchProfile = async () => {
     try {
-      const user = await client.profile();
-      dispatch(setCurrentUser(user));
-    } catch (error) {
-      dispatch(setCurrentUser(null));
-    } finally {
-      setPending(false);
+      const currentUser = await client.profile();
+      dispatch(setCurrentUser(currentUser));
+    } catch (err: any) {
+      console.error(err);
     }
+    setPending(false);
   };
   useEffect(() => {
     fetchProfile();
   }, []);
-  return <>{!pending && children}</>;
-};
-
-export default Session;
+  if (!pending) {
+    return children;
+  }
+}
