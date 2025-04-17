@@ -1,5 +1,6 @@
 import users from "../Database/users.js";
 import { v4 as uuidv4 } from "uuid";
+import {model} from "mongoose";
 
 export function findAllUsers() {
   return users;
@@ -24,17 +25,20 @@ export function createUser(user) {
     courses: [],
   };
   users.push(newUser);
-  return newUser;
+  return model.create(newUser);
 }
 
-export function updateUser(userId, userUpdates) {
-  const user = users.find((u) => u._id === userId);
-  if (user) {
-    Object.assign(user, userUpdates);
-    return user;
+const updateUser = async (req, res) => {
+  const { userId } = req.params;
+  const userUpdates = req.body;
+  await dao.updateUser(userId, userUpdates);
+  const currentUser = req.session["currentUser"];
+  if (currentUser && currentUser._id === userId) {
+    req.session["currentUser"] = { ...currentUser, ...userUpdates };
   }
-  return null;
-}
+  res.json(currentUser);
+};
+app.put("/api/users/:userId", updateUser);
 
 export function deleteUser(userId) {
   const index = users.findIndex((u) => u._id === userId);
@@ -81,4 +85,14 @@ export function findUserCourses(userId) {
   return user?.courses || [];
 }
 
+export const findUsersByPartialName = (partialName) => {
+  const regex = new RegExp(partialName, "i"); // 'i' makes it case-insensitive
+  return model.find({
+                      $or: [{ firstName: { $regex: regex } }, { lastName: { $regex: regex } }],
+                    });
+};
+
+export const findUserById = (userId) => model.findById(userId);
+
+export const deleteUser = (userId) => model.deleteOne({ _id: userId });
 
