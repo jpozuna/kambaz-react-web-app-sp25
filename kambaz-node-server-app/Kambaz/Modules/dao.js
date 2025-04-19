@@ -1,21 +1,18 @@
-import Database from "../Database/modules.js";
-export function findModulesForCourse(courseId) {
-  const { modules } = Database;
-  return modules.filter((module) => module.course === courseId);
-}
+import Database from "../Database/index.js";
+import model from "./model.js";
 export function createModule(module) {
-  const newModule = { ...module, _id: Date.now().toString() };
-  Database.modules = [...Database.modules, newModule];
-  return newModule;
+    const newModule = {...module, _id: uuidv4()};
+    return model.create(newModule);
 }
 
-export function deleteModule(moduleId) {
-  const { modules } = Database;
-  Database.modules = modules.filter((module) => module._id !== moduleId);
-}
-export function updateModule(moduleId, moduleUpdates) {
-  const { modules } = Database;
-  const module = modules.find((module) => module._id === moduleId);
-  Object.assign(module, moduleUpdates);
-  return module;
-}
+// Get modules for a specific course
+export const findModulesForCourse = (courseId) =>
+    Module.find({ course: courseId });
+
+// Delete a module
+export const deleteModule = (moduleId) =>
+    Module.deleteOne({ _id: moduleId });
+
+// Update a module
+export const updateModule = (moduleId, moduleUpdates) =>
+    Module.updateOne({ _id: moduleId }, { $set: moduleUpdates });
