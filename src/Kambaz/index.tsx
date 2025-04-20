@@ -8,7 +8,6 @@ import { useEffect, useState } from "react";
 import ProtectedRoute from "./Account/ProtectedRoute";
 import KambazNavigation from "./Navigation";
 import Session from "./Account/Session";
-import * as userClient from "./Account/client";
 import { useSelector } from "react-redux";
 import * as courseClient from "./Courses/client";
 import * as userClient from "./Account/client";
@@ -91,14 +90,6 @@ export default function Kambaz() {
         await courseClient.deleteCourse(courseId);
     };
 
-    const fetchCourses = async () => {
-        try {
-            const courses = await courseClient.fetchAllCourses();
-            setCourses(courses);
-        } catch (error) {
-            console.error(error);
-        }
-    };
 
     useEffect(() => {
         if (enrolling) {

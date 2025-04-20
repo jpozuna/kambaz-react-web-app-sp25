@@ -3,7 +3,7 @@ import { BsGripVertical } from "react-icons/bs";
 import ModuleControlButtons from "./ModuleControlButtons";
 import { useParams } from "react-router";
 import { useSelector, useDispatch } from "react-redux";
-import { setModules, addModule, editModule, updateModule, deleteModule, setModules } from "./reducer";
+import { setModules, addModule, editModule, updateModule, deleteModule } from "./reducer";
 import { useState, useEffect } from "react";
 import * as coursesClient from "../client";
 import * as modulesClient from "./client";

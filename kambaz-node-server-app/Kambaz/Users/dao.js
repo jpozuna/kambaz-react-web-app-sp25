@@ -6,10 +6,6 @@ export function findAllUsers() {
   return users;
 }
 
-export function findUserById(userId) {
-  return users.find((user) => user._id === userId);
-}
-
 export function findUsersByRole(role) {
   return users.filter((user) => user.role === role);
 }
@@ -28,26 +24,11 @@ export function createUser(user) {
   return model.create(newUser);
 }
 
-const updateUser = async (req, res) => {
-  const { userId } = req.params;
-  const userUpdates = req.body;
-  await dao.updateUser(userId, userUpdates);
-  const currentUser = req.session["currentUser"];
-  if (currentUser && currentUser._id === userId) {
-    req.session["currentUser"] = { ...currentUser, ...userUpdates };
-  }
-  res.json(currentUser);
+export const updateUser = async (userId, userUpdates) => {
+  return model.updateOne({ _id: userId }, { $set: userUpdates });
 };
-app.put("/api/users/:userId", updateUser);
 
-export function deleteUser(userId) {
-  const index = users.findIndex((u) => u._id === userId);
-  if (index !== -1) {
-    users.splice(index, 1);
-    return true;
-  }
-  return false;
-}
+
 
 export function enrollUserInCourse(userId, courseId) {
   const user = users.find((u) => u._id === userId);

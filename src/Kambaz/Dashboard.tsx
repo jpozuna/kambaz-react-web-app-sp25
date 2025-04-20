@@ -1,11 +1,9 @@
 import { Link } from "react-router-dom";
-import React from "react";
+import React, {useState} from "react";
 import { useSelector } from "react-redux";
 
 export default function Dashboard({
                                       courses,
-                                      course,
-                                      setCourse,
                                       addNewCourse,
                                       deleteCourse,
                                       updateCourse,
@@ -24,6 +22,7 @@ export default function Dashboard({
     updateEnrollment: (courseId: string, enrolled: boolean) => void;
 }) {
     const { currentUser } = useSelector((state: any) => state.accountReducer);
+    const [course, setCourse] = useState({ name: "", description: "" });
     console.log("Current User:", currentUser);
     console.log("Courses:", courses);
 
