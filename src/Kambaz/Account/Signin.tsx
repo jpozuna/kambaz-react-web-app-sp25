@@ -1,57 +1,65 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { setCurrentUser } from "./reducer";
 import { useDispatch } from "react-redux";
+import { setCurrentUser } from "./reducer";
 import * as client from "./client";
 
 export default function Signin() {
-    const [credentials, setCredentials] = useState({ username: "", password: "" });
+    const [credentials, setCredentials] = useState<any>({});
+    const [error, setError] = useState<string | null>(null);
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const signin = async (e: React.FormEvent) => {
-        e.preventDefault();
+    const signin = async () => {
         try {
             const user = await client.signin(credentials);
-            if (!user) return;
+            if (!user) {
+                setError("Invalid username or password");
+                return;
+            }
             dispatch(setCurrentUser(user));
             navigate("/Kambaz/Dashboard");
-        } catch (err) {
-            console.error("Signin failed", err);
+        } catch (err: any) {
+            setError(err.response?.data?.message || "Failed to sign in");
         }
     };
 
     return (
-        <div className="container mt-4" style={{ maxWidth: 400 }}>
-            <h2 className="mb-4">Sign In</h2>
-            <form onSubmit={signin}>
-                <div className="form-group mb-3">
-                    <label htmlFor="username">Username</label>
-                    <input
-                        id="username"
-                        type="text"
-                        className="form-control"
-                        value={credentials.username}
-                        onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-                    />
-                </div>
-                <div className="form-group mb-3">
-                    <label htmlFor="password">Password</label>
-                    <input
-                        id="password"
-                        type="password"
-                        className="form-control"
-                        value={credentials.password}
-                        onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-                    />
-                </div>
-                <button type="submit" className="btn btn-primary w-100">
-                    Sign In
-                </button>
-            </form>
-            <p className="mt-3 text-center">
-                Don't have an account? <Link to="/account/signup">Sign up</Link>
-            </p>
+        <div className="container mt-5">
+            <h2>Sign In</h2>
+            {error && <div className="alert alert-danger">{error}</div>}
+            <div className="mb-3">
+                <label htmlFor="username" className="form-label">
+                    Username
+                </label>
+                <input
+                    type="text"
+                    className="form-control"
+                    id="username"
+                    value={credentials.username || ""}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setCredentials({ ...credentials, username: e.target.value })
+                    }
+                />
+            </div>
+            <div className="mb-3">
+                <label htmlFor="password" className="form-label">
+                    Password
+                </label>
+                <input
+                    type="password"
+                    className="form-control"
+                    id="password"
+                    value={credentials.password || ""}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                        setCredentials({ ...credentials, password: e.target.value })
+                    }
+                />
+            </div>
+            <button className="btn btn-primary" onClick={signin}>
+                Sign In
+            </button>
+            <Link id="wd-signup-link" to="/Kambaz/Account/Signup"> Sign up </Link>
         </div>
     );
 }

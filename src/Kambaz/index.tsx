@@ -24,9 +24,11 @@ export default function Kambaz() {
         }
 
         try {
-            await courseClient.updateCourse(course);
-            const updatedCourses = await userClient.findMyCourses();
-            setCourses(updatedCourses);
+            await courseClient.updateCourse(course._id, course);
+            setCourses(courses.map((c) => {
+                if (c._id === course._id) { return course; }
+                else { return c; }
+            }));
         } catch (e) {
             console.error("⛔ Update failed:", e);
         }
@@ -34,22 +36,24 @@ export default function Kambaz() {
 
 
     const addNewCourse = async () => {
-        if (!currentUser) return;
-        const newCourse = await courseClient.createCourse({ name: "", description: "" });
-        // Optional: enroll the user in the course if your logic supports it
-        await courseClient.enrollInCourse(newCourse._id, currentUser._id);
+        const newCourse = await userClient.createCourse(course);
         setCourses([...courses, newCourse]);
     };
 
 
     const deleteCourse = async (courseId: string) => {
-        await courseClient.deleteCourse(courseId);
+        try {
+            await courseClient.deleteCourse(courseId);
+            setCourses(courses.filter(course => course._id !== courseId));
+        } catch (error) {
+            console.error("Failed to delete course:", error);
+        }
     };
 
     const fetchCourses = async () => {
         try {
             const courses = await userClient.findMyCourses();
-            setCourses(courses);
+            setCourses(courses as any[]);
         } catch (error) {
             console.error(error);
         }

@@ -12,13 +12,13 @@ const axiosWithCredentials = axios.create({
 
 // ✅ Create a course (fix: should be POST, not GET)
 export const createCourse = async (course: any) => {
-    const { data } = await axiosWithCredentials.post(`/current/courses`, course);
+    const { data } = await axiosWithCredentials.post(`${USERS_API}/current/courses`, course);
     return data;
 };
 
 // ✅ Fetch courses
 export const findMyCourses = async () => {
-    const { data } = await axiosWithCredentials.get(`/current/courses`);
+    const { data } = await axiosWithCredentials.get(`${USERS_API}/current/courses`);
     return data;
 };
 

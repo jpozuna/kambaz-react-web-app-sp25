@@ -1,123 +1,76 @@
 import React, { useState } from "react";
-import { FormControl, Button, Row, Col } from "react-bootstrap";
+import { FormControl } from "react-bootstrap";
 const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
 
 export default function WorkingWithArrays() {
-  const [todos, setTodos] = useState([
-    {
-      id: 1,
-      title: "Learn Node.js",
-      description: "Learn how to create a Node.js server",
-      completed: false
-    },
-    {
-      id: 2,
-      title: "Learn React",
-      description: "Learn how to create a React application",
-      completed: false
-    }
-  ]);
-
-  const [selectedTodoId, setSelectedTodoId] = useState(1);
-  const [newDescription, setNewDescription] = useState("");
-  const [completed, setCompleted] = useState(false);
-
-  const handleUpdateDescription = async () => {
-    try {
-      const response = await fetch(
-        `${REMOTE_SERVER}/lab5/todos/${selectedTodoId}/description/${newDescription}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to update description");
-      }
-      const updatedTodos = await response.json();
-      setTodos(updatedTodos);
-    } catch (error) {
-      console.error("Error updating description:", error);
-    }
-  };
-
-  const handleUpdateCompleted = async () => {
-    try {
-      const response = await fetch(
-        `${REMOTE_SERVER}/lab5/todos/${selectedTodoId}/completed/${completed}`
-      );
-      if (!response.ok) {
-        throw new Error("Failed to update completion status");
-      }
-      const updatedTodos = await response.json();
-      setTodos(updatedTodos);
-    } catch (error) {
-      console.error("Error updating completion status:", error);
-    }
-  };
+  const [todo, setTodo] = useState({
+    id: "1",
+    title: "NodeJS Assignment",
+    description: "Create a NodeJS server with ExpressJS",
+    due: "2021-09-09",
+    completed: false,
+  });
+  const API = `${REMOTE_SERVER}/lab5/todos`;
 
   return (
-    <div>
-      <h3 id="wd-working-with-arrays">Working With Arrays</h3>
-      
-      <h4>Select Todo</h4>
-      <Row className="mb-3">
-        <Col md={12}>
-          <FormControl as="select" 
-            value={selectedTodoId}
-            onChange={(e) => setSelectedTodoId(parseInt(e.target.value))}>
-            {todos.map(todo => (
-              <option key={todo.id} value={todo.id}>
-                {todo.title}
-              </option>
-            ))}
-          </FormControl>
-        </Col>
-      </Row>
-
-      <h4>Update Todo Description</h4>
-      <Row className="mb-3">
-        <Col md={8}>
-          <FormControl
-            type="text"
-            value={newDescription}
-            onChange={(e) => setNewDescription(e.target.value)}
-            placeholder="Enter new description"
-          />
-        </Col>
-        <Col md={4} className="text-end">
-          <Button
-            variant="primary"
-            onClick={handleUpdateDescription}>
-            Update Description
-          </Button>
-        </Col>
-      </Row>
-
-      <h4>Update Todo Completion</h4>
-      <Row className="mb-3">
-        <Col md={8}>
-          <FormControl
-            type="checkbox"
-            checked={completed}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setCompleted(e.target.checked)}
-          />
-        </Col>
-        <Col md={4} className="text-end">
-          <Button
-            variant="primary"
-            onClick={handleUpdateCompleted}>
-            Update Completion
-          </Button>
-        </Col>
-      </Row>
-
-      <h4>Current Todos</h4>
-      <div className="list-group">
-        {todos.map(todo => (
-          <div key={todo.id} className="list-group-item">
-            <h5>{todo.title}</h5>
-            <p>{todo.description}</p>
-            <p>Completed: {todo.completed ? "Yes" : "No"}</p>
-          </div>
-        ))}
-      </div>
+    <div id="wd-working-with-arrays">
+      <h3>Working with Arrays</h3>
+      <h4>Retrieving Arrays</h4>
+      <a id="wd-retrieve-todos" className="btn btn-primary" href={API}>
+        Get Todos
+      </a><hr/>
+      <h4>Retrieving an Item from an Array by ID</h4>
+      <a id="wd-retrieve-todo-by-id" className="btn btn-primary float-end" href={`${API}/${todo.id}`}>
+        Get Todo by ID
+      </a>
+      <FormControl id="wd-todo-id" defaultValue={todo.id} className="w-50"
+        onChange={(e) => setTodo({ ...todo, id: e.target.value })} />
+      <hr />
+      <h4>Filtering Array Items</h4>
+      <a id="wd-retrieve-completed-todos" className="btn btn-primary"
+         href={`${API}?completed=true`}>
+        Get Completed Todos
+      </a><hr/>
+      <h4>Creating new Items in an Array</h4>
+      <a id="wd-create-todo" className="btn btn-primary"
+         href={`${API}/create`}>
+        Create Todo
+      </a><hr/>
+      <h4>Deleting from an Array</h4>
+      <a id="wd-delete-todo" className="btn btn-primary float-end" href={`${API}/${todo.id}/delete`}>
+        Delete Todo with ID = {todo.id}
+      </a>
+      <FormControl defaultValue={todo.id} className="w-50" 
+        onChange={(e) => setTodo({ ...todo, id: e.target.value })}/>
+      <hr />
+      <h4>Updating an Item in an Array</h4>
+      <a href={`${API}/${todo.id}/title/${todo.title}`} className="btn btn-primary float-end">
+        Update Todo
+      </a>
+      <FormControl defaultValue={todo.id} className="w-25 float-start me-2"
+        onChange={(e) => setTodo({ ...todo, id: e.target.value })}/>
+      <FormControl defaultValue={todo.title} className="w-50 float-start"
+        onChange={(e) => setTodo({ ...todo, title: e.target.value })} />
+      <br /><br /><hr />
+      <h4>Updating Todo Description</h4>
+      <a href={`${API}/${todo.id}/description/${todo.description}`} className="btn btn-primary float-end">
+        Update Description
+      </a>
+      <FormControl defaultValue={todo.id} className="w-25 float-start me-2"
+        onChange={(e) => setTodo({ ...todo, id: e.target.value })}/>
+      <FormControl defaultValue={todo.description} className="w-50 float-start"
+        onChange={(e) => setTodo({ ...todo, description: e.target.value })} />
+      <br /><br /><hr />
+      <h4>Updating Todo Completion</h4>
+      <a href={`${API}/${todo.id}/completed/${todo.completed}`} className="btn btn-primary float-end">
+        Update Completion
+      </a>
+      <FormControl defaultValue={todo.id} className="w-25 float-start me-2"
+        onChange={(e) => setTodo({ ...todo, id: e.target.value })}/>
+      <input type="checkbox" className="form-check-input w-50 float-start"
+        checked={todo.completed}
+        onChange={(e) => setTodo({ ...todo, completed: e.target.checked })} />
+      <br /><br /><hr />
     </div>
   );
 }

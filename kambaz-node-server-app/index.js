@@ -15,10 +15,9 @@ const app = express();
 
 // ✅ Middleware
 app.use(cors({
-               credentials: true,
-               origin: "http://localhost:5173", // ✅ MUST match exactly
-             }));
-
+  credentials: true,
+  origin: "http://localhost:5173", // ✅ MUST match exactly
+}));
 
 const sessionOptions = {
   secret: process.env.SESSION_SECRET || "kambaz",
@@ -39,13 +38,12 @@ app.use(cookieParser());
 app.use(session(sessionOptions));
 app.use(express.json());
 
-
-// ✅ Routes
+// Register routes
 Lab5(app);
 UserRoutes(app);
 CourseRoutes(app);
-AssignmentRoutes(app);
 ModuleRoutes(app);
+AssignmentRoutes(app);
 EnrollmentRoutes(app);
 
 app.use((req, res, next) => {

@@ -1,34 +1,29 @@
-import assignments from "../Database/assignments.js";
+import Database from "../Database/index.js";
 import { v4 as uuidv4 } from "uuid";
 
 export function findAllAssignments() {
-  return assignments;
+  return Database.assignments;
 }
 
 export function findAssignmentsForCourse(courseId) {
+  const { assignments } = Database;
   return assignments.filter((assignment) => assignment.course === courseId);
 }
 
 export function createAssignment(assignment) {
   const newAssignment = { ...assignment, _id: uuidv4() };
-  assignments.push(newAssignment);
+  Database.assignments = [...Database.assignments, newAssignment];
   return newAssignment;
 }
 
 export function updateAssignment(assignmentId, assignmentUpdates) {
-  const assignment = assignments.find((a) => a._id === assignmentId);
-  if (assignment) {
-    Object.assign(assignment, assignmentUpdates);
-    return assignment;
-  }
-  return null;
+  const { assignments } = Database;
+  const assignment = assignments.find((assignment) => assignment._id === assignmentId);
+  Object.assign(assignment, assignmentUpdates);
+  return assignment;
 }
 
 export function deleteAssignment(assignmentId) {
-  const index = assignments.findIndex((a) => a._id === assignmentId);
-  if (index !== -1) {
-    assignments.splice(index, 1);
-    return true;
-  }
-  return false;
+  const { assignments } = Database;
+  Database.assignments = assignments.filter((assignment) => assignment._id !== assignmentId);
 } 

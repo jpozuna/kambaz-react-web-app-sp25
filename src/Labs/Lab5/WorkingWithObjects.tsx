@@ -23,7 +23,7 @@ export default function WorkingWithObjects() {
     <div>
       <h3 id="wd-working-with-objects">Working With Objects</h3>
       
-      <h4>Modifying Assignment Properties</h4>
+      <h4>Retrieving Objects</h4>
       <Row className="mb-3">
         <Col md={8}>
           <FormControl className="w-100" id="wd-assignment-title"
@@ -38,7 +38,11 @@ export default function WorkingWithObjects() {
           </Button>
         </Col>
       </Row>
-      
+      <h4>Retrieving Properties</h4>
+      <a id="wd-retrieve-assignment-title" className="btn btn-primary"
+         href={`${REMOTE_SERVER}/lab5/assignment/title`}>
+        Get Title
+      </a><hr/>
       <h4>Update Assignment Score</h4>
       <Row className="mb-3">
         <Col md={8}>

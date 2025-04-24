@@ -23,29 +23,20 @@ export const fetchAllCourses = async () => {
 };
 
 // ✅ Delete course by ID
-export const deleteCourse = async (id: string) => {
-  if (!id) throw new Error("Missing course ID in deleteCourse()");
-  const { data } = await axiosWithCredentials.delete(`${COURSES_API}/${id}`);
+export const deleteCourse = async (courseId: string) => {
+  const { data } = await axiosWithCredentials.delete(`${COURSES_API}/${courseId}`);
   return data;
 };
 
 // ✅ Update a course
-export const updateCourse = async (course: any) => {
-  if (!course?._id) {
-    throw new Error("Missing course._id in updateCourse()");
-  }
-  const { data } = await axiosWithCredentials.put(
-      `${COURSES_API}/${course._id}`,
-      course
-  );
+export const updateCourse = async (courseId: string, courseUpdates: any) => {
+  const { data } = await axiosWithCredentials.put(`${COURSES_API}/${courseId}`, courseUpdates);
   return data;
 };
 
 // ✅ Get all modules for a course
 export const findModulesForCourse = async (courseId: string) => {
-  const response = await axiosWithCredentials.get(
-      `${COURSES_API}/${courseId}/modules`
-  );
+  const response = await axiosWithCredentials.get(`${COURSES_API}/${courseId}/modules`);
   return response.data;
 };
 
