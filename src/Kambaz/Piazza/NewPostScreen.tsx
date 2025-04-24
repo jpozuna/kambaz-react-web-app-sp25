@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FaTimes } from 'react-icons/fa';
+import { FaTimes, FaPaperPlane } from 'react-icons/fa';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 
@@ -41,32 +41,9 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
         folders?: string;
     }>({});
 
-    const validateForm = () => {
-        const newErrors: {
-            title?: string;
-            content?: string;
-            folders?: string;
-        } = {};
-
-        if (!title.trim()) {
-            newErrors.title = 'Title is required';
-        }
-
-        if (!content.trim()) {
-            newErrors.content = 'Content is required';
-        }
-
-        if (selectedFolders.length === 0) {
-            newErrors.folders = 'Please select at least one folder';
-        }
-
-        setErrors(newErrors);
-        return Object.keys(newErrors).length === 0;
-    };
-
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (validateForm()) {
+        if (title && content && selectedFolders.length > 0) {
             onSave({
                 type,
                 title,
@@ -76,6 +53,12 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
                 folders: selectedFolders
             });
             onClose();
+        } else {
+            setErrors({
+                title: !title ? 'Title is required' : undefined,
+                content: !content ? 'Content is required' : undefined,
+                folders: selectedFolders.length === 0 ? 'Please select a folder' : undefined
+            });
         }
     };
 
@@ -94,7 +77,7 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
                     </div>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-4">
+                <div className="p-4">
                     <div className="mb-4">
                         <label className="d-block mb-2">Post Type</label>
                         <div className="btn-group" role="group">
@@ -164,20 +147,30 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
 
                     <div className="mb-4">
                         <label className="d-block mb-2">Visibility</label>
-                        <div className="btn-group" role="group">
+                        <div className="d-flex align-items-center gap-3">
+                            <div className="btn-group" role="group">
+                                <button
+                                    type="button"
+                                    className={`btn ${visibility === 'entire-class' ? 'btn-primary' : 'btn-outline-primary'}`}
+                                    onClick={() => setVisibility('entire-class')}
+                                >
+                                    Entire Class
+                                </button>
+                                <button
+                                    type="button"
+                                    className={`btn ${visibility === 'selected-users' ? 'btn-primary' : 'btn-outline-primary'}`}
+                                    onClick={() => setVisibility('selected-users')}
+                                >
+                                    Selected Users
+                                </button>
+                            </div>
                             <button
                                 type="button"
-                                className={`btn ${visibility === 'entire-class' ? 'btn-primary' : 'btn-outline-primary'}`}
-                                onClick={() => setVisibility('entire-class')}
+                                className="btn btn-primary"
+                                onClick={handleSubmit}
                             >
-                                Entire Class
-                            </button>
-                            <button
-                                type="button"
-                                className={`btn ${visibility === 'selected-users' ? 'btn-primary' : 'btn-outline-primary'}`}
-                                onClick={() => setVisibility('selected-users')}
-                            >
-                                Selected Users
+                                <FaPaperPlane className="me-2" />
+                                Post
                             </button>
                         </div>
                     </div>
@@ -210,7 +203,7 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
                         </div>
                     )}
 
-                    <div className="d-flex justify-content-end gap-2 mt-4">
+                    <div className="d-flex justify-content-end">
                         <button
                             type="button"
                             className="btn btn-outline-secondary"
@@ -218,14 +211,8 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
                         >
                             Cancel
                         </button>
-                        <button
-                            type="submit"
-                            className="btn btn-primary"
-                        >
-                            Post
-                        </button>
                     </div>
-                </form>
+                </div>
             </div>
         </div>
     );

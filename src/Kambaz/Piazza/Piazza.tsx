@@ -118,9 +118,37 @@ const Piazza: React.FC<PiazzaProps> = ({ courseName, userName, userRole, userId 
         })
         .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
 
-    const handlePostSave = (newPostData: Partial<Post>) => {
-        console.log('New post data:', newPostData);
+    const handlePostSave = (newPostData: {
+        type: 'question' | 'note';
+        title: string;
+        content: string;
+        visibility: 'entire-class' | 'selected-users';
+        selectedUsers: string[];
+        folders: string[];
+    }) => {
+        // Create new post object
+        const newPost: Post = {
+            id: `post-${Date.now()}`,
+            title: newPostData.title,
+            content: newPostData.content,
+            author: {
+                id: userId,
+                name: userName
+            },
+            folder: newPostData.folders[0],
+            createdAt: new Date(),
+            status: 'unresolved',
+            tags: [newPostData.type],
+            responses: []
+        };
+
+        // Add to posts list
+        mockPosts.unshift(newPost);
         setShowNewPost(false);
+    };
+
+    const searchExternalAPI = async (query: string) => {
+        // Implement external API search
     };
 
     return (
