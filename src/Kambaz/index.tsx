@@ -45,12 +45,12 @@ export default function Kambaz() {
                 const enrollments = await courseClient.getEnrollmentsForUser() as Course[];
                 const coursesWithEnrollment = allCourses.map(course => ({
                     ...course,
-                    enrolled: enrollments.some(e => e._id === course._id)
+                    enrolled: enrollments?.some(e => e?._id === course._id) || false
                 }));
                 dispatch(setCourses(coursesWithEnrollment));
             } else {
                 // For admin and faculty, just load all courses
-                dispatch(setCourses(allCourses));
+                dispatch(setCourses(allCourses.map(course => ({ ...course, enrolled: false }))));
             }
         } catch (error) {
             console.error("Error loading courses:", error);
@@ -59,6 +59,7 @@ export default function Kambaz() {
 
     const updateEnrollment = async (courseId: string, enrolled: boolean) => {
         try {
+            setEnrolling(true);
             if (enrolled) {
                 await courseClient.enrollInCourse(courseId);
             } else {
@@ -69,19 +70,21 @@ export default function Kambaz() {
             await loadCourses();
         } catch (error) {
             console.error("Error updating enrollment:", error);
+        } finally {
+            setEnrolling(false);
         }
     };
 
-    const addNewCourse = async () => {
+    const addNewCourse = async (courseData: Partial<Course>) => {
         try {
             const newCourse = await courseClient.createCourse({
-                name: "New Course",
-                number: "CS1234",
-                startDate: "2024-01-01",
-                endDate: "2024-05-01",
-                image: "/images/canvas-image.png",
-                description: "New course description",
-                credits: 3,
+                name: courseData.name || "New Course",
+                number: courseData.number || "CS1234",
+                startDate: courseData.startDate || "2024-01-01",
+                endDate: courseData.endDate || "2024-05-01",
+                image: courseData.image || "/images/canvas-image.png",
+                description: courseData.description || "New course description",
+                credits: courseData.credits || 3,
             }) as Course;
             dispatch(addCourse(newCourse));
         } catch (error) {

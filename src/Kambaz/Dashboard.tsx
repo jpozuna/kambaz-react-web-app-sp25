@@ -1,5 +1,5 @@
-import { Link } from "react-router-dom";
-import React, {useState} from "react";
+import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
 import { useSelector } from "react-redux";
 
 interface Course {
@@ -18,7 +18,7 @@ interface DashboardProps {
     courses: Course[];
     course: Course | null;
     setCourse: (course: Course | null) => void;
-    addNewCourse: () => void;
+    addNewCourse: (course: Partial<Course>) => void;
     deleteCourse: (courseId: string) => void;
     updateCourse: (courseId: string, course: Partial<Course>) => void;
     enrolling: boolean;
@@ -37,119 +37,246 @@ export default function Dashboard({
     setEnrolling,
     updateEnrollment,
 }: DashboardProps) {
+    const navigate = useNavigate();
     const { currentUser } = useSelector((state: any) => state.accountReducer);
     const isAdmin = currentUser?.role === "ADMIN";
     const isFaculty = currentUser?.role === "FACULTY";
+    const isStudent = !isAdmin && !isFaculty;
+    const [newCourse, setNewCourse] = useState({ name: '', description: '' });
+    const [selectedFilter, setSelectedFilter] = useState('All Courses');
+
+    // Filter courses based on enrollment status
+    const filteredCourses = selectedFilter === 'My Enrollments' 
+        ? courses.filter(course => course.enrolled)
+        : courses;
+
+    const handleAddCourse = () => {
+        if (newCourse.name && newCourse.description) {
+            addNewCourse({
+                name: newCourse.name,
+                description: newCourse.description,
+                image: '/images/canvas-image.png',
+                number: '',
+                startDate: new Date().toISOString(),
+                endDate: new Date().toISOString(),
+                credits: 3
+            });
+            setNewCourse({ name: '', description: '' });
+        }
+    };
+
+    const handleUpdateCourse = () => {
+        if (course) {
+            updateCourse(course._id, {
+                name: course.name,
+                description: course.description,
+                image: course.image || '/images/canvas-image.png'
+            });
+            setCourse(null);
+        }
+    };
+
+    const handleCardClick = (courseId: string, event: React.MouseEvent) => {
+        // Check if the click target is a button or link
+        const target = event.target as HTMLElement;
+        if (target.closest('button') || target.closest('a')) {
+            return;
+        }
+        navigate(`/Kambaz/Courses/${courseId}/Home`);
+    };
 
     return (
-        <div id="wd-dashboard" className="container-fluid">
-            <h1 id="wd-dashboard-title">
-                Dashboard
-                {!isAdmin && !isFaculty && (
-                    <Link to="/Kambaz/Enrollments" className="float-end btn btn-primary">
-                        My Enrollments
-                    </Link>
-                )}
-            </h1>
-            <hr />
-
-            {(isAdmin || isFaculty) && (
-                <>
-                    <h5>
-                        Course Management
-                        <button
-                            className="btn btn-primary float-end"
-                            id="wd-add-new-course-click"
-                            onClick={addNewCourse}
+        <div className="container-fluid p-4">
+            <div className="row">
+                {/* Left Sidebar */}
+                <div className="col-md-2">
+                    <div className="list-group">
+                        <button 
+                            className={`list-group-item list-group-item-action ${selectedFilter === 'All Courses' ? 'active' : ''}`}
+                            onClick={() => setSelectedFilter('All Courses')}
                         >
-                            Add New Course
+                            All Courses
                         </button>
-                        {course && (
-                            <button
-                                className="btn btn-warning float-end me-2"
-                                onClick={() => updateCourse(course._id, course)}
-                                id="wd-update-course-click"
+                        {isStudent && (
+                            <button 
+                                className={`list-group-item list-group-item-action ${selectedFilter === 'My Enrollments' ? 'active' : ''}`}
+                                onClick={() => setSelectedFilter('My Enrollments')}
                             >
-                                Update Course
+                                My Enrollments
+                                <span className="badge bg-primary rounded-pill float-end">
+                                    {courses.filter(course => course.enrolled).length}
+                                </span>
                             </button>
                         )}
-                    </h5>
-                    {course && (
-                        <div className="mt-3">
-                            <input
-                                value={course.name}
-                                placeholder="Course Name"
-                                className="form-control mb-2"
-                                onChange={(e) => setCourse({ ...course, name: e.target.value })}
-                            />
-                            <textarea
-                                value={course.description}
-                                placeholder="Course Description"
-                                className="form-control"
-                                onChange={(e) => setCourse({ ...course, description: e.target.value })}
-                            />
-                        </div>
-                    )}
-                    <hr />
-                </>
-            )}
+                    </div>
+                </div>
 
-            <h2 id="wd-dashboard-published">
-                Available Courses ({courses.length})
-            </h2>
-            <hr />
-            <div id="wd-dashboard-courses" className="row justify-content-start">
-                <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-4">
-                    {courses.map((course) => (
-                        <div key={course._id} className="wd-dashboard-course col" style={{ width: "260px" }}>
-                            <div className="card rounded-3 overflow-hidden">
-                                <Link
-                                    className="wd-dashboard-course-link text-decoration-none text-dark"
-                                    to={`/Kambaz/Courses/${course._id}/Home`}
-                                >
-                                    <img
-                                        src={course.image}
-                                        width="100%"
-                                        height={160}
-                                        className="card-img-top"
-                                        alt={course.name}
-                                    />
-                                    <div className="card-body">
-                                        <h5 className="wd-dashboard-course-title card-title">
-                                            {course.name}
-                                        </h5>
-                                        <p className="wd-dashboard-course-title card-text">
-                                            {course.description}
-                                        </p>
+                {/* Main Content */}
+                <div className="col-md-10">
+                    <div className="d-flex justify-content-between align-items-center mb-4">
+                        <h2 className="mb-0">
+                            {selectedFilter === 'My Enrollments' ? 'My Enrolled Courses' : 'Course Dashboard'}
+                        </h2>
+                    </div>
+
+                    {/* Admin Course Management */}
+                    {(isAdmin || isFaculty) && selectedFilter === 'All Courses' && (
+                        <div className="card mb-4">
+                            <div className="card-header bg-light">
+                                <h5 className="mb-0">Course Management</h5>
+                            </div>
+                            <div className="card-body">
+                                <div className="row g-3">
+                                    <div className="col-md-4">
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            placeholder="New Course Name"
+                                            value={newCourse.name}
+                                            onChange={(e) => setNewCourse({ ...newCourse, name: e.target.value })}
+                                        />
                                     </div>
-                                </Link>
-                                <div className="card-footer">
-                                    <Link
-                                        to={`/Kambaz/Courses/${course._id}/Home`}
-                                        className="btn btn-primary"
-                                    >
-                                        View Course
-                                    </Link>
-                                    {(isAdmin || isFaculty) && (
-                                        <>
-                                            <button
-                                                onClick={() => setCourse(course)}
-                                                className="btn btn-warning float-end ms-2"
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                onClick={() => deleteCourse(course._id)}
-                                                className="btn btn-danger float-end"
-                                            >
-                                                Delete
-                                            </button>
-                                        </>
-                                    )}
+                                    <div className="col-md-6">
+                                        <input
+                                            type="text"
+                                            className="form-control"
+                                            placeholder="New Course Description"
+                                            value={newCourse.description}
+                                            onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })}
+                                        />
+                                    </div>
+                                    <div className="col-md-2">
+                                        <button
+                                            className="btn btn-primary w-100"
+                                            onClick={handleAddCourse}
+                                            disabled={!newCourse.name || !newCourse.description}
+                                        >
+                                            Add Course
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    ))}
+                    )}
+
+                    {/* Course Editor */}
+                    {course && (
+                        <div className="card mb-4">
+                            <div className="card-header bg-light d-flex justify-content-between align-items-center">
+                                <h5 className="mb-0">Edit Course</h5>
+                                <button
+                                    className="btn btn-sm btn-outline-secondary"
+                                    onClick={() => setCourse(null)}
+                                >
+                                    ×
+                                </button>
+                            </div>
+                            <div className="card-body">
+                                <div className="mb-3">
+                                    <input
+                                        value={course.name}
+                                        placeholder="Course Name"
+                                        className="form-control mb-2"
+                                        onChange={(e) => setCourse({ ...course, name: e.target.value })}
+                                    />
+                                    <textarea
+                                        value={course.description}
+                                        placeholder="Course Description"
+                                        className="form-control mb-2"
+                                        onChange={(e) => setCourse({ ...course, description: e.target.value })}
+                                    />
+                                    <input
+                                        value={course.image || ''}
+                                        placeholder="Course Image URL"
+                                        className="form-control mb-3"
+                                        onChange={(e) => setCourse({ ...course, image: e.target.value })}
+                                    />
+                                    <button
+                                        className="btn btn-warning"
+                                        onClick={handleUpdateCourse}
+                                    >
+                                        Update Course
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Course List */}
+                    <div className="row g-4">
+                        {filteredCourses.map((course) => (
+                            <div key={course._id} className="col-md-6 col-lg-4">
+                                <div 
+                                    className="card h-100 interactive-card" 
+                                    onClick={(e) => handleCardClick(course._id, e)}
+                                    style={{
+                                        cursor: 'pointer',
+                                        transition: 'transform 0.2s, box-shadow 0.2s'
+                                    }}
+                                >
+                                    <img
+                                        src={course.image || "/images/canvas-image.png"}
+                                        className="card-img-top"
+                                        alt={course.name}
+                                        style={{ height: "160px", objectFit: "cover" }}
+                                    />
+                                    <div className="card-body">
+                                        <h5 className="card-title">{course.name}</h5>
+                                        <p className="card-text text-muted">{course.description}</p>
+                                        {course.enrolled && (
+                                            <span className="badge bg-success">Enrolled</span>
+                                        )}
+                                    </div>
+                                    <div className="card-footer bg-transparent">
+                                        <div className="d-flex justify-content-between align-items-center">
+                                            <Link
+                                                to={`/Kambaz/Courses/${course._id}/Home`}
+                                                className="btn btn-outline-primary"
+                                            >
+                                                View Course
+                                            </Link>
+                                            <div>
+                                                {(isAdmin || isFaculty) && selectedFilter === 'All Courses' && (
+                                                    <>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                setCourse(course);
+                                                            }}
+                                                            className="btn btn-outline-warning me-2"
+                                                        >
+                                                            Edit
+                                                        </button>
+                                                        <button
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                deleteCourse(course._id);
+                                                            }}
+                                                            className="btn btn-outline-danger"
+                                                        >
+                                                            Delete
+                                                        </button>
+                                                    </>
+                                                )}
+                                                {isStudent && (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            updateEnrollment(course._id, !course.enrolled);
+                                                        }}
+                                                        className={`btn btn-${course.enrolled ? 'outline-danger' : 'outline-success'}`}
+                                                        disabled={enrolling}
+                                                    >
+                                                        {course.enrolled ? 'Unenroll' : 'Enroll'}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
         </div>

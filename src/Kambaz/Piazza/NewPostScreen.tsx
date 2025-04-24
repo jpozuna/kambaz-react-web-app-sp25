@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { FaTimes } from 'react-icons/fa';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
@@ -29,7 +29,6 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
     users,
     folders
 }) => {
-    const quillRef = useRef<ReactQuill>(null);
     const [type, setType] = useState<'question' | 'note'>('question');
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
@@ -42,22 +41,6 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
         folders?: string;
     }>({});
 
-    const handleUserSelect = (userId: string) => {
-        setSelectedUsers(prev =>
-            prev.includes(userId)
-                ? prev.filter(id => id !== userId)
-                : [...prev, userId]
-        );
-    };
-
-    const handleFolderSelect = (folder: string) => {
-        setSelectedFolders(prev =>
-            prev.includes(folder)
-                ? prev.filter(f => f !== folder)
-                : [...prev, folder]
-        );
-    };
-
     const validateForm = () => {
         const newErrors: {
             title?: string;
@@ -66,13 +49,11 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
         } = {};
 
         if (!title.trim()) {
-            newErrors.title = 'Summary is required';
-        } else if (title.length > 100) {
-            newErrors.title = 'Summary must be 100 characters or less';
+            newErrors.title = 'Title is required';
         }
 
         if (!content.trim()) {
-            newErrors.content = 'Details are required';
+            newErrors.content = 'Content is required';
         }
 
         if (selectedFolders.length === 0) {
@@ -94,139 +75,157 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
                 selectedUsers,
                 folders: selectedFolders
             });
-        }
-    };
-
-    const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const value = e.target.value;
-        if (value.length <= 100) {
-            setTitle(value);
+            onClose();
         }
     };
 
     return (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center z-50">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] overflow-y-auto">
-                <div className="p-6">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-2xl font-bold">New Post</h2>
+                <div className="p-4 border-b border-gray-200">
+                    <div className="d-flex justify-content-between align-items-center">
+                        <h2 className="text-xl font-semibold">New Post</h2>
                         <button
                             onClick={onClose}
-                            className="text-gray-500 hover:text-gray-700"
+                            className="btn btn-link text-dark"
                         >
                             <FaTimes />
                         </button>
                     </div>
+                </div>
 
-                    <form onSubmit={handleSubmit}>
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Type</label>
-                            <select
-                                value={type}
-                                onChange={(e) => setType(e.target.value as 'question' | 'note')}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            >
-                                <option value="question">Question</option>
-                                <option value="note">Note</option>
-                            </select>
-                        </div>
-
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Title</label>
-                            <input
-                                type="text"
-                                value={title}
-                                onChange={handleTitleChange}
-                                className={`mt-1 block w-full rounded-md border ${
-                                    errors.title ? 'border-red-500' : 'border-gray-300'
-                                } shadow-sm focus:border-blue-500 focus:ring-blue-500`}
-                                placeholder="Enter a summary for your post"
-                                required
-                            />
-                            {errors.title && (
-                                <p className="mt-1 text-sm text-red-500">{errors.title}</p>
-                            )}
-                        </div>
-
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Content</label>
-                            <div className={`${errors.content ? 'border border-red-500 rounded-md' : ''}`}>
-                                <ReactQuill
-                                    ref={quillRef}
-                                    value={content}
-                                    onChange={setContent}
-                                    className="h-48 mb-12"
-                                />
-                            </div>
-                            {errors.content && (
-                                <p className="mt-1 text-sm text-red-500">{errors.content}</p>
-                            )}
-                        </div>
-
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Folder</label>
-                            <select
-                                value={selectedFolders[0]}
-                                onChange={(e) => setSelectedFolders([e.target.value])}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                required
-                            >
-                                <option value="">Select a folder</option>
-                                {folders.map((folder) => (
-                                    <option key={folder} value={folder}>
-                                        {folder}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-
-                        <div className="mb-4">
-                            <label className="block text-sm font-medium text-gray-700">Visibility</label>
-                            <select
-                                value={visibility}
-                                onChange={(e) => setVisibility(e.target.value as 'entire-class' | 'selected-users')}
-                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                            >
-                                <option value="entire-class">Entire Class</option>
-                                <option value="selected-users">Selected Users</option>
-                            </select>
-                        </div>
-
-                        {visibility === 'selected-users' && (
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700">Select Users</label>
-                                <select
-                                    multiple
-                                    value={selectedUsers}
-                                    onChange={(e) => setSelectedUsers(Array.from(e.target.selectedOptions, option => option.value))}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                >
-                                    {users.map((user) => (
-                                        <option key={user.id} value={user.id}>
-                                            {user.name} ({user.role})
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
-                        )}
-
-                        <div className="mt-6 flex justify-end space-x-3">
+                <form onSubmit={handleSubmit} className="p-4">
+                    <div className="mb-4">
+                        <label className="d-block mb-2">Post Type</label>
+                        <div className="btn-group" role="group">
                             <button
                                 type="button"
-                                onClick={onClose}
-                                className="px-4 py-2 border rounded-md text-gray-600 hover:bg-gray-50"
+                                className={`btn ${type === 'question' ? 'btn-primary' : 'btn-outline-primary'}`}
+                                onClick={() => setType('question')}
                             >
-                                Cancel
+                                Question
                             </button>
                             <button
-                                type="submit"
-                                className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                                type="button"
+                                className={`btn ${type === 'note' ? 'btn-primary' : 'btn-outline-primary'}`}
+                                onClick={() => setType('note')}
                             >
-                                Create Post
+                                Note/Announcement
                             </button>
                         </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="d-block mb-2">Title</label>
+                        <input
+                            type="text"
+                            className={`form-control ${errors.title ? 'is-invalid' : ''}`}
+                            value={title}
+                            onChange={(e) => setTitle(e.target.value)}
+                            placeholder="Enter a descriptive title"
+                        />
+                        {errors.title && (
+                            <div className="invalid-feedback">{errors.title}</div>
+                        )}
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="d-block mb-2">Content</label>
+                        <div className={`piazza-editor ${errors.content ? 'border-danger' : ''}`}>
+                            <ReactQuill
+                                value={content}
+                                onChange={setContent}
+                                theme="snow"
+                            />
+                        </div>
+                        {errors.content && (
+                            <div className="text-danger small mt-1">{errors.content}</div>
+                        )}
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="d-block mb-2">Folder</label>
+                        <select
+                            className={`form-select ${errors.folders ? 'is-invalid' : ''}`}
+                            value={selectedFolders[0] || ''}
+                            onChange={(e) => setSelectedFolders([e.target.value])}
+                        >
+                            <option value="">Select a folder</option>
+                            {folders.map((folder) => (
+                                <option key={folder} value={folder}>
+                                    {folder}
+                                </option>
+                            ))}
+                        </select>
+                        {errors.folders && (
+                            <div className="invalid-feedback">{errors.folders}</div>
+                        )}
+                    </div>
+
+                    <div className="mb-4">
+                        <label className="d-block mb-2">Visibility</label>
+                        <div className="btn-group" role="group">
+                            <button
+                                type="button"
+                                className={`btn ${visibility === 'entire-class' ? 'btn-primary' : 'btn-outline-primary'}`}
+                                onClick={() => setVisibility('entire-class')}
+                            >
+                                Entire Class
+                            </button>
+                            <button
+                                type="button"
+                                className={`btn ${visibility === 'selected-users' ? 'btn-primary' : 'btn-outline-primary'}`}
+                                onClick={() => setVisibility('selected-users')}
+                            >
+                                Selected Users
+                            </button>
+                        </div>
+                    </div>
+
+                    {visibility === 'selected-users' && (
+                        <div className="mb-4">
+                            <label className="d-block mb-2">Select Users</label>
+                            <div className="border rounded p-3" style={{ maxHeight: '200px', overflowY: 'auto' }}>
+                                {users.map((user) => (
+                                    <div key={user.id} className="form-check">
+                                        <input
+                                            type="checkbox"
+                                            className="form-check-input"
+                                            id={`user-${user.id}`}
+                                            checked={selectedUsers.includes(user.id)}
+                                            onChange={() => {
+                                                if (selectedUsers.includes(user.id)) {
+                                                    setSelectedUsers(selectedUsers.filter(id => id !== user.id));
+                                                } else {
+                                                    setSelectedUsers([...selectedUsers, user.id]);
+                                                }
+                                            }}
+                                        />
+                                        <label className="form-check-label" htmlFor={`user-${user.id}`}>
+                                            {user.name} ({user.role})
+                                        </label>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="d-flex justify-content-end gap-2 mt-4">
+                        <button
+                            type="button"
+                            className="btn btn-outline-secondary"
+                            onClick={onClose}
+                        >
+                            Cancel
+                        </button>
+                        <button
+                            type="submit"
+                            className="btn btn-primary"
+                        >
+                            Post
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     );
