@@ -18,6 +18,8 @@ interface Post {
     createdAt: string;
     folder: string;
     type: 'question' | 'note';
+    visibility: 'entire-class' | 'selected-users';
+    selectedUsers: string[];
     views: number;
     authorId: string;
 }
@@ -118,31 +120,24 @@ const PostScreen: React.FC<PostScreenProps> = ({
             <div className="mb-6">
                 {isEditing ? (
                     <div>
-                        <ReactQuill
+                        <textarea
                             value={editedContent}
-                            onChange={setEditedContent}
-                            className="h-48 mb-12"
+                            onChange={(e) => setEditedContent(e.target.value)}
+                            className="w-full h-48 p-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         />
-                        <div className="flex justify-end space-x-4 mt-4">
-                            <button
-                                onClick={handleCancel}
-                                className="px-4 py-2 text-gray-600 hover:text-gray-800"
-                            >
-                                Cancel
-                            </button>
+                        <div className="mt-4 flex justify-end">
                             <button
                                 onClick={handleSave}
-                                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                                className="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600"
                             >
                                 Save Changes
                             </button>
                         </div>
                     </div>
                 ) : (
-                    <div
-                        className="prose max-w-none"
-                        dangerouslySetInnerHTML={{ __html: post.content }}
-                    />
+                    <div className="prose max-w-none">
+                        {post.content}
+                    </div>
                 )}
             </div>
 

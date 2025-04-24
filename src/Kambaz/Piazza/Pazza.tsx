@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import PazzaNavBar from './PazzaNavBar';
+import PiazzaNavBar from './PiazzaNavBar';
 import FolderFilters from './FolderFilters';
 import ListOfPosts from './ListOfPosts';
 import NewPostScreen from './NewPostScreen';
 import PostScreen from './PostScreen';
 
-interface PazzaProps {
+interface PiazzaProps {
     courseName: string;
     userName: string;
     userRole: 'student' | 'instructor';
@@ -33,7 +33,7 @@ interface User {
     role: 'student' | 'instructor';
 }
 
-const Pazza: React.FC<PazzaProps> = ({ courseName, userName, userRole, userId }) => {
+const Piazza: React.FC<PiazzaProps> = ({ courseName, userName, userRole, userId }) => {
     const [selectedFolder, setSelectedFolder] = useState<string>('all');
     const [selectedPost, setSelectedPost] = useState<Post | null>(null);
     const [showNewPost, setShowNewPost] = useState(false);
@@ -139,7 +139,7 @@ const Pazza: React.FC<PazzaProps> = ({ courseName, userName, userRole, userId })
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <PazzaNavBar courseName={courseName} userName={userName} />
+            <PiazzaNavBar courseName={courseName} userName={userName} />
             <FolderFilters onFolderSelect={handleFolderSelect} />
             <ListOfPosts
                 posts={mockPosts}
@@ -150,9 +150,17 @@ const Pazza: React.FC<PazzaProps> = ({ courseName, userName, userRole, userId })
                 <div className="container mx-auto px-4 py-8">
                     {selectedPost ? (
                         <PostScreen
-                            post={selectedPost}
+                            post={{
+                                ...selectedPost,
+                                visibility: selectedPost.visibility || 'public',
+                                selectedUsers: selectedPost.selectedUsers || []
+                            }}
                             currentUser={{ id: userId, name: userName, role: userRole }}
-                            onEdit={handleEditPost}
+                            onEdit={(post: Post) => handleEditPost({
+                                ...post,
+                                visibility: post.visibility || 'public',
+                                selectedUsers: post.selectedUsers || []
+                            })}
                             onDelete={handleDeletePost}
                         />
                     ) : (
@@ -178,4 +186,4 @@ const Pazza: React.FC<PazzaProps> = ({ courseName, userName, userRole, userId })
     );
 };
 
-export default Pazza; 
+export default Piazza; 

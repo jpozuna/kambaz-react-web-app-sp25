@@ -79,7 +79,7 @@ export default function Kambaz() {
                 number: "CS1234",
                 startDate: "2024-01-01",
                 endDate: "2024-05-01",
-                image: "https://canvas-image.png",
+                image: "/images/canvas-image.png",
                 description: "New course description",
                 credits: 3,
             }) as Course;
