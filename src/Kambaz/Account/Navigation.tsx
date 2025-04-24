@@ -16,7 +16,11 @@ export default function AccountNavigation() {
                 </Link>
             ))}
             {currentUser && currentUser.role === "ADMIN" && (
-                <Link to={`/Kambaz/Account/Users`} className={`list-group-item ${active("Users")}`}> Users </Link> )}
+                <Link to={`/Kambaz/Account/Users`} 
+                      className={pathname.endsWith("Users") ? "active" : ""}>
+                    Users
+                </Link>
+            )}
         </div>
     );
 }

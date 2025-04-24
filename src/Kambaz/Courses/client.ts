@@ -4,7 +4,7 @@ const REMOTE_SERVER = import.meta.env.VITE_REMOTE_SERVER;
 const COURSES_API = `${REMOTE_SERVER}/api/courses`;
 
 const axiosWithCredentials = axios.create({
-  baseURL: COURSES_API,
+  baseURL: REMOTE_SERVER,
   withCredentials: true,
 });
 
@@ -93,29 +93,25 @@ export const deleteAssignmentFromCourse = async (
 };
 
 // ✅ Enroll a user in a course
-export const enrollInCourse = async (courseId: string, userId: string) => {
+export const enrollInCourse = async (courseId: string) => {
   const response = await axiosWithCredentials.post(
-      `${COURSES_API}/${courseId}`,
-      { userId }
+    `/api/courses/${courseId}/enrollments`
   );
   return response.data;
 };
 
 // ✅ Unenroll a user from a course
-export const unenrollFromCourse = async (
-    courseId: string,
-    userId: string
-) => {
+export const unenrollFromCourse = async (courseId: string) => {
   const response = await axiosWithCredentials.delete(
-      `${COURSES_API}/${courseId}/enrollments/${userId}`
+    `/api/courses/${courseId}/enrollments`
   );
   return response.data;
 };
 
-// ✅ Get enrollments for a user
-export const getEnrollmentsForUser = async (userId: string) => {
+// ✅ Get enrollments for current user
+export const getEnrollmentsForUser = async () => {
   const response = await axiosWithCredentials.get(
-      `${REMOTE_SERVER}/api/enrollments/${userId}`
+    `/api/users/enrollments`
   );
   return response.data;
 };
