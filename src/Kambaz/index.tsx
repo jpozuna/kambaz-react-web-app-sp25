@@ -12,44 +12,41 @@ import { useSelector } from "react-redux";
 import * as courseClient from "./Courses/client";
 import * as userClient from "./Account/client";
 
+interface Course {
+    _id: string;
+    name: string;
+    number: string;
+    startDate: string;
+    endDate: string;
+    image: string;
+    description: string;
+    credits: number;
+    enrolled?: boolean;
+}
+
 export default function Kambaz() {
-    const [courses, setCourses] = useState<any[]>([]);
-    const [course, setCourse] = useState<any>(null);
     const { currentUser } = useSelector((state: any) => state.accountReducer);
+    const [courses, setCourses] = useState<Course[]>([]);
+    const [course, setCourse] = useState<Course | null>(null);
     const [enrolling, setEnrolling] = useState<boolean>(false);
+
     const findCoursesForUser = async () => {
         try {
             const courses = await userClient.findCoursesForUser(currentUser._id);
-            setCourses(courses);
+            setCourses(courses as Course[]);
         } catch (error) {
             console.error(error);
         }
     };
-    const updateEnrollment = async (courseId: string, enrolled: boolean) => {
-        if (enrolled) {
-            await userClient.enrollIntoCourse(currentUser._id, courseId);
-        } else {
-            await userClient.unenrollFromCourse(currentUser._id, courseId);
-        }
-        setCourses(
-            courses.map((course) => {
-                if (course._id === courseId) {
-                    return { ...course, enrolled: enrolled };
-                } else {
-                    return course;
-                }
-            })
-        );
-    };
 
     const fetchCourses = async () => {
         try {
-            const allCourses = await courseClient.fetchAllCourses();
+            const allCourses = await courseClient.fetchAllCourses() as Course[];
             const enrolledCourses = await userClient.findCoursesForUser(
                 currentUser._id
-            );
-            const courses = allCourses.map((course: any) => {
-                if (enrolledCourses.find((c: any) => c._id === course._id)) {
+            ) as Course[];
+            const courses = allCourses.map((course) => {
+                if (enrolledCourses.find((c) => c._id === course._id)) {
                     return { ...course, enrolled: true };
                 } else {
                     return course;
@@ -61,35 +58,63 @@ export default function Kambaz() {
         }
     };
 
-    const updateCourse = async () => {
-        if (!course || !course._id) {
-            console.warn("⛔ Can't update: course is missing or has no ID.");
-            return;
-        }
-
+    const updateEnrollment = async (courseId: string, enrolled: boolean) => {
         try {
-            await courseClient.updateCourse(course);
-            const updatedCourses = await userClient.findMyCourses();
-            setCourses(updatedCourses);
-        } catch (e) {
-            console.error("⛔ Update failed:", e);
+            if (enrolled) {
+                await userClient.enrollIntoCourse(currentUser._id, courseId);
+            } else {
+                await userClient.unenrollFromCourse(currentUser._id, courseId);
+            }
+            setCourses(
+                courses.map((course) => {
+                    if (course._id === courseId) {
+                        return { ...course, enrolled: enrolled };
+                    } else {
+                        return course;
+                    }
+                })
+            );
+        } catch (error) {
+            console.error(error);
         }
     };
-
 
     const addNewCourse = async () => {
-        if (!currentUser) return;
-        const newCourse = await courseClient.createCourse({ name: "", description: "" });
-        // Optional: enroll the user in the course if your logic supports it
-        await courseClient.enrollInCourse(newCourse._id, currentUser._id);
-        setCourses([...courses, newCourse]);
+        try {
+            const newCourse = await courseClient.createCourse({
+                name: "New Course",
+                number: "CS1234",
+                startDate: "2024-01-01",
+                endDate: "2024-05-01",
+                image: "https://example.com/course.jpg",
+                description: "New course description",
+                credits: 3,
+            });
+            setCourses([...courses, newCourse as Course]);
+        } catch (error) {
+            console.error(error);
+        }
     };
-
 
     const deleteCourse = async (courseId: string) => {
-        await courseClient.deleteCourse(courseId);
+        try {
+            await courseClient.deleteCourse(courseId);
+            setCourses(courses.filter((course) => course._id !== courseId));
+        } catch (error) {
+            console.error(error);
+        }
     };
 
+    const updateCourse = async (courseId: string, course: Partial<Course>) => {
+        try {
+            await courseClient.updateCourse(courseId, course);
+            setCourses(
+                courses.map((c) => (c._id === courseId ? { ...c, ...course } : c))
+            );
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
     useEffect(() => {
         if (enrolling) {
@@ -98,7 +123,6 @@ export default function Kambaz() {
             findCoursesForUser();
         }
     }, [currentUser, enrolling]);
-
 
     return (
         <Session>
@@ -114,10 +138,11 @@ export default function Kambaz() {
                             setCourse={setCourse}
                             addNewCourse={addNewCourse}
                             deleteCourse={deleteCourse}
-                            updateCourse={updateCourse}/>
-                            enrolling={enrolling} setEnrolling={setEnrolling}
+                            updateCourse={updateCourse}
+                            enrolling={enrolling}
+                            setEnrolling={setEnrolling}
                             updateEnrollment={updateEnrollment}
-                        </ProtectedRoute>}/>
+                        /></ProtectedRoute>}/>
                         <Route path="Courses/:cid/*" element={<ProtectedRoute><Courses courses={courses} /></ProtectedRoute> } />
                         <Route path="/Calendar" element={<h1>Calendar</h1>}/>
                         <Route path="/Inbox" element={<h1>Inbox</h1>}/>

@@ -1,28 +1,18 @@
 import model from "./model.js";
+import { v4 as uuidv4 } from "uuid";
 
-export function createCourse(course) {
-    const newCourse = { ...course, _id: uuidv4() };
-    return model.create(newCourse);
-}
+export const findAllCourses = () => model.find();
 
-export function findAllCourses() {
-    return model.find();
-}
-export function findCoursesForEnrolledUser(userId) {
-    const { courses, enrollments } = Database;
-    const enrolledCourses = courses.filter((course) =>
-                                               enrollments.some(
-                                                   (enrollment) =>
-                                                       enrollment.user === userId && enrollment.course === course._id
-                                               )
-    );
-    return enrolledCourses;
-}
+export const findCourseById = (courseId) => model.findById(courseId);
 
-export function deleteCourse(courseId) {
-    return model.deleteOne({ _id: courseId });
-}
+export const findCoursesForEnrolledUser = (userId) => model.find({ enrolled: userId });
 
-export function updateCourse(courseId, courseUpdates) {
-    return model.updateOne({ _id: courseId }, { $set: courseUpdates });
-}
+export const createCourse = (course) => {
+  const newCourse = { ...course, _id: uuidv4() };
+  return model.create(newCourse);
+};
+
+export const updateCourse = (courseId, course) => 
+  model.updateOne({ _id: courseId }, { $set: course });
+
+export const deleteCourse = (courseId) => model.deleteOne({ _id: courseId });
