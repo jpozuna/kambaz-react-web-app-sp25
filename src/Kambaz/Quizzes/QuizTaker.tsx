@@ -1,305 +1,290 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { FaCheck, FaTimes } from 'react-icons/fa';
-import { Quiz, Question, QuizAttempt } from './types';
-import axios from 'axios';
+import { FaCheck, FaTimes, FaClock } from 'react-icons/fa';
+import { Quiz, QuizAttempt, QuizAnswer } from './types';
+import { saveAttempt, getLatestAttempt } from './services/quizService';
+import './styles.css';
 
 interface QuizTakerProps {
     quiz: Quiz;
     userId: string;
+    onComplete: () => void;
 }
 
-interface Answer {
-    questionId: string;
-    answer: string | boolean;
-}
-
-const QuizTaker: React.FC<QuizTakerProps> = ({ quiz, userId }) => {
-    const navigate = useNavigate();
-    const { courseId } = useParams<{ courseId: string }>();
-    const [answers, setAnswers] = useState<Answer[]>([]);
+const QuizTaker: React.FC<QuizTakerProps> = ({
+    quiz,
+    userId,
+    onComplete
+}) => {
+    const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+    const [answers, setAnswers] = useState<QuizAnswer[]>([]);
+    const [timeLeft, setTimeLeft] = useState(quiz.timeLimit * 60); // in seconds
     const [isSubmitted, setIsSubmitted] = useState(false);
-    const [score, setScore] = useState<number | null>(null);
-    const [attempts, setAttempts] = useState<QuizAttempt[]>([]);
-    const [currentAttempt, setCurrentAttempt] = useState<QuizAttempt | null>(null);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+    const [showResults, setShowResults] = useState(false);
+
+    const currentQuestion = quiz.questions[currentQuestionIndex];
 
     useEffect(() => {
-        const fetchAttempts = async () => {
-            try {
-                const response = await axios.get<QuizAttempt[]>(`/api/quizzes/${quiz._id}/attempts`, {
-                    params: { userId }
-                });
-                setAttempts(response.data);
-                setLoading(false);
-            } catch (err) {
-                setError('Failed to fetch quiz attempts');
-                setLoading(false);
-            }
-        };
+        if (timeLeft > 0 && !isSubmitted) {
+            const timer = setInterval(() => {
+                setTimeLeft(prev => prev - 1);
+            }, 1000);
+            return () => clearInterval(timer);
+        } else if (timeLeft === 0 && !isSubmitted) {
+            handleSubmit();
+        }
+    }, [timeLeft, isSubmitted]);
 
-        fetchAttempts();
-    }, [quiz._id, userId]);
-
-    const handleAnswerChange = (questionId: string, answer: string | boolean) => {
-        if (isSubmitted) return; // Don't allow changes after submission
-        setAnswers(prev => {
-            const existingAnswer = prev.find(a => a.questionId === questionId);
-            if (existingAnswer) {
-                return prev.map(a => a.questionId === questionId ? { ...a, answer } : a);
-            }
-            return [...prev, { questionId, answer }];
-        });
+    const formatTime = (seconds: number) => {
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
     };
 
-    const handleSubmit = async () => {
-        try {
-            let totalScore = 0;
-            let maxScore = 0;
+    const handleAnswerChange = (answer: string | string[]) => {
+        const newAnswers = [...answers];
+        const existingAnswerIndex = newAnswers.findIndex(a => a.questionId === currentQuestion.id);
 
-            quiz.questions?.forEach(question => {
-                maxScore += question.points;
-                const answer = answers.find(a => a.questionId === question._id);
-                if (answer) {
-                    switch (question.type) {
-                        case 'multiple-choice':
-                            if (answer.answer === question.correctAnswer) {
-                                totalScore += question.points;
-                            }
-                            break;
-                        case 'true-false':
-                            if (answer.answer === question.correctAnswer) {
-                                totalScore += question.points;
-                            }
-                            break;
-                        case 'fill-blank':
-                            const studentAnswer = answer.answer as string;
-                            const correctAnswers = question.options || [];
-                            const isCorrect = correctAnswers.some(correctAnswer => {
-                                if (question.caseSensitive) {
-                                    return studentAnswer === correctAnswer;
-                                }
-                                return studentAnswer.toLowerCase() === correctAnswer.toLowerCase();
-                            });
-                            if (isCorrect) {
-                                totalScore += question.points;
-                            }
-                            break;
-                    }
-                }
+        if (existingAnswerIndex >= 0) {
+            newAnswers[existingAnswerIndex] = {
+                ...newAnswers[existingAnswerIndex],
+                answer
+            };
+        } else {
+            newAnswers.push({
+                questionId: currentQuestion.id,
+                answer,
+                isCorrect: false
             });
+        }
 
+        setAnswers(newAnswers);
+    };
+
+    const handleNext = () => {
+        if (currentQuestionIndex < quiz.questions.length - 1) {
+            setCurrentQuestionIndex(currentQuestionIndex + 1);
+        }
+    };
+
+    const handlePrevious = () => {
+        if (currentQuestionIndex > 0) {
+            setCurrentQuestionIndex(currentQuestionIndex - 1);
+        }
+    };
+
+    const handleSubmit = () => {
+        if (window.confirm('Are you sure you want to submit the quiz?')) {
             const attempt: QuizAttempt = {
-                _id: `temp-${Date.now()}`,
-                quizId: quiz._id,
+                id: `attempt-${Date.now()}`,
+                quizId: quiz.id,
                 userId,
-                startTime: new Date().toISOString(),
-                endTime: new Date().toISOString(),
-                score: totalScore,
-                answers
+                answers,
+                score: calculateScore().earned,
+                startedAt: new Date(Date.now() - (quiz.timeLimit * 60 - timeLeft) * 1000),
+                submittedAt: new Date()
             };
 
-            const response = await axios.post<QuizAttempt>(`/api/quizzes/${quiz._id}/attempts`, attempt);
-            setCurrentAttempt(response.data);
-            setScore(totalScore);
+            saveAttempt(attempt);
             setIsSubmitted(true);
-            setAttempts(prev => [...prev, response.data]);
-        } catch (err) {
-            setError('Failed to submit quiz');
+            setShowResults(true);
         }
     };
 
-    const canTakeQuiz = () => {
-        if (!quiz.multipleAttempts) {
-            return attempts.length === 0;
-        }
-        return attempts.length < quiz.attemptsAllowed;
+    const calculateScore = () => {
+        let totalPoints = 0;
+        let earnedPoints = 0;
+
+        quiz.questions.forEach(question => {
+            totalPoints += question.points;
+            const answer = answers.find(a => a.questionId === question.id);
+            if (answer && answer.isCorrect) {
+                earnedPoints += question.points;
+            }
+        });
+
+        return {
+            earned: earnedPoints,
+            total: totalPoints,
+            percentage: (earnedPoints / totalPoints) * 100
+        };
     };
 
-    const renderQuestion = (question: Question) => {
-        const answer = answers.find(a => a.questionId === question._id);
-        const isCorrect = isSubmitted && answer && (
-            question.type === 'multiple-choice' ? answer.answer === question.correctAnswer :
-            question.type === 'true-false' ? answer.answer === question.correctAnswer :
-            question.type === 'fill-blank' ? (question.options || []).some(opt => 
-                question.caseSensitive ? answer.answer === opt : (answer.answer as string).toLowerCase() === opt.toLowerCase()
-            ) : false
-        );
+    const renderQuestion = () => {
+        if (!currentQuestion) return null;
 
-        return (
-            <div key={question._id} className="bg-white rounded-lg shadow-md p-6 mb-6">
-                <div className="flex justify-between items-start">
-                    <div>
-                        <h3 className="text-lg font-semibold">{question.title || 'Untitled Question'}</h3>
-                        <div className="mt-2" dangerouslySetInnerHTML={{ __html: question.text }} />
-                        <p className="text-sm text-gray-500 mt-2">Points: {question.points}</p>
-                    </div>
-                    {isSubmitted && (
-                        <div className={`text-lg ${isCorrect ? 'text-green-500' : 'text-red-500'}`}>
-                            {isCorrect ? <FaCheck /> : <FaTimes />}
-                        </div>
-                    )}
-                </div>
-
-                <div className="mt-4">
-                    {!isSubmitted ? (
-                        <div>
-                            {question.type === 'multiple-choice' && (
-                                <div className="space-y-2">
-                                    {question.options?.map((option, index) => (
-                                        <label key={index} className="flex items-center space-x-2">
-                                            <input
-                                                type="radio"
-                                                name={`question-${question._id}`}
-                                                checked={answer?.answer === option}
-                                                onChange={() => handleAnswerChange(question._id, option)}
-                                                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                            />
-                                            <span>{option}</span>
-                                        </label>
-                                    ))}
-                                </div>
-                            )}
-
-                            {question.type === 'true-false' && (
-                                <div className="space-x-4">
-                                    <label className="inline-flex items-center">
-                                        <input
-                                            type="radio"
-                                            name={`question-${question._id}`}
-                                            checked={answer?.answer === true}
-                                            onChange={() => handleAnswerChange(question._id, true)}
-                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                        />
-                                        <span className="ml-2">True</span>
-                                    </label>
-                                    <label className="inline-flex items-center">
-                                        <input
-                                            type="radio"
-                                            name={`question-${question._id}`}
-                                            checked={answer?.answer === false}
-                                            onChange={() => handleAnswerChange(question._id, false)}
-                                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                        />
-                                        <span className="ml-2">False</span>
-                                    </label>
-                                </div>
-                            )}
-
-                            {question.type === 'fill-blank' && (
+        switch (currentQuestion.type) {
+            case 'multiple-choice':
+                return (
+                    <div className="multiple-choice">
+                        {currentQuestion.options?.map(option => (
+                            <div key={option.id} className="form-check">
                                 <input
-                                    type="text"
-                                    value={answer?.answer as string || ''}
-                                    onChange={(e) => handleAnswerChange(question._id, e.target.value)}
-                                    className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                    placeholder="Enter your answer"
+                                    type="radio"
+                                    className="form-check-input"
+                                    name={`question-${currentQuestion.id}`}
+                                    id={`option-${option.id}`}
+                                    checked={answers.find(a => a.questionId === currentQuestion.id)?.answer === option.id}
+                                    onChange={() => handleAnswerChange(option.id)}
+                                    disabled={isSubmitted}
                                 />
-                            )}
+                                <label className="form-check-label" htmlFor={`option-${option.id}`}>
+                                    {option.content}
+                                </label>
+                            </div>
+                        ))}
+                    </div>
+                );
+
+            case 'true-false':
+                return (
+                    <div className="true-false">
+                        <div className="form-check">
+                            <input
+                                type="radio"
+                                className="form-check-input"
+                                name={`question-${currentQuestion.id}`}
+                                id="true"
+                                checked={answers.find(a => a.questionId === currentQuestion.id)?.answer === 'true'}
+                                onChange={() => handleAnswerChange('true')}
+                                disabled={isSubmitted}
+                            />
+                            <label className="form-check-label" htmlFor="true">
+                                True
+                            </label>
                         </div>
-                    ) : (
-                        <div>
-                            <p className="font-medium">Your Answer:</p>
-                            <p className="text-gray-600">
-                                {question.type === 'multiple-choice' && answer?.answer}
-                                {question.type === 'true-false' && (answer?.answer === true ? 'True' : 'False')}
-                                {question.type === 'fill-blank' && answer?.answer}
-                            </p>
-                            {!isCorrect && (
-                                <div className="mt-2">
-                                    <p className="font-medium text-red-500">Correct Answer:</p>
-                                    <p className="text-gray-600">
-                                        {question.type === 'multiple-choice' && question.correctAnswer}
-                                        {question.type === 'true-false' && (question.correctAnswer === true ? 'True' : 'False')}
-                                        {question.type === 'fill-blank' && (question.options || []).join(', ')}
-                                    </p>
-                                </div>
-                            )}
+                        <div className="form-check">
+                            <input
+                                type="radio"
+                                className="form-check-input"
+                                name={`question-${currentQuestion.id}`}
+                                id="false"
+                                checked={answers.find(a => a.questionId === currentQuestion.id)?.answer === 'false'}
+                                onChange={() => handleAnswerChange('false')}
+                                disabled={isSubmitted}
+                            />
+                            <label className="form-check-label" htmlFor="false">
+                                False
+                            </label>
                         </div>
-                    )}
-                </div>
-            </div>
-        );
+                    </div>
+                );
+
+            case 'fill-blank':
+                return (
+                    <div className="fill-blank">
+                        <input
+                            type="text"
+                            className="form-control"
+                            value={answers.find(a => a.questionId === currentQuestion.id)?.answer as string || ''}
+                            onChange={(e) => handleAnswerChange(e.target.value)}
+                            placeholder="Enter your answer"
+                            disabled={isSubmitted}
+                        />
+                    </div>
+                );
+
+            default:
+                return null;
+        }
     };
 
-    if (loading) {
-        return <div className="flex justify-center items-center h-64">Loading...</div>;
-    }
-
-    if (error) {
-        return <div className="text-red-500 text-center">{error}</div>;
-    }
-
-    if (!canTakeQuiz()) {
+    if (showResults) {
+        const score = calculateScore();
         return (
-            <div className="container mx-auto px-4 py-8">
-                <div className="bg-white rounded-lg shadow-md p-6">
-                    <h1 className="text-2xl font-bold mb-4">{quiz.title}</h1>
-                    <p className="text-gray-600">
-                        You have used all available attempts for this quiz.
-                    </p>
-                    {attempts.length > 0 && (
-                        <div className="mt-6">
-                            <h2 className="text-xl font-bold mb-4">Last Attempt Results</h2>
-                            <p className="text-lg">
-                                Score: {attempts[attempts.length - 1].score} out of {quiz.points} points
-                            </p>
-                            <p className="text-gray-600 mt-2">
-                                Percentage: {((attempts[attempts.length - 1].score || 0) / quiz.points * 100).toFixed(1)}%
-                            </p>
-                        </div>
-                    )}
+            <div className="quiz-results">
+                <h2>Quiz Results</h2>
+                <div className="score-summary">
+                    <h3>Score: {score.earned} / {score.total} ({score.percentage.toFixed(1)}%)</h3>
+                </div>
+                <div className="questions-review">
+                    {quiz.questions.map((question, index) => {
+                        const answer = answers.find(a => a.questionId === question.id);
+                        return (
+                            <div key={question.id} className="question-review">
+                                <h4>Question {index + 1}</h4>
+                                <p>{question.title}</p>
+                                <div className="answer-review">
+                                    <p>Your answer: {answer?.answer}</p>
+                                    <p>Correct answer: {question.correctAnswer}</p>
+                                    <div className="result-indicator">
+                                        {answer?.isCorrect ? (
+                                            <FaCheck className="text-success" />
+                                        ) : (
+                                            <FaTimes className="text-danger" />
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+                <div className="d-flex justify-content-end mt-4">
+                    <button
+                        className="btn btn-primary"
+                        onClick={onComplete}
+                    >
+                        Done
+                    </button>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">{quiz.title}</h1>
-                {attempts.length > 0 && (
-                    <p className="text-gray-600">
-                        Attempt {attempts.length + 1} of {quiz.attemptsAllowed}
-                    </p>
-                )}
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-                <div dangerouslySetInnerHTML={{ __html: quiz.description || '' }} />
-                <div className="mt-4 text-sm text-gray-500">
-                    <p>Points: {quiz.points}</p>
-                    <p>Time Limit: {quiz.timeLimit} minutes</p>
-                    {quiz.multipleAttempts && (
-                        <p>Attempts Allowed: {quiz.attemptsAllowed}</p>
-                    )}
+        <div className="quiz-taker">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2>{quiz.title}</h2>
+                <div className="timer">
+                    <FaClock className="me-2" />
+                    {formatTime(timeLeft)}
                 </div>
             </div>
 
-            <div className="space-y-6">
-                {quiz.questions?.map(renderQuestion)}
+            <div className="progress mb-4">
+                <div
+                    className="progress-bar"
+                    role="progressbar"
+                    style={{ width: `${((currentQuestionIndex + 1) / quiz.questions.length) * 100}%` }}
+                >
+                    Question {currentQuestionIndex + 1} of {quiz.questions.length}
+                </div>
             </div>
 
-            {!isSubmitted ? (
-                <div className="mt-6 flex justify-end">
+            <div className="question-container">
+                <h3>{currentQuestion.title}</h3>
+                <div className="question-content">
+                    {currentQuestion.content}
+                </div>
+                <div className="question-options">
+                    {renderQuestion()}
+                </div>
+            </div>
+
+            <div className="d-flex justify-content-between mt-4">
+                <button
+                    className="btn btn-outline-primary"
+                    onClick={handlePrevious}
+                    disabled={currentQuestionIndex === 0}
+                >
+                    Previous
+                </button>
+                {currentQuestionIndex === quiz.questions.length - 1 ? (
                     <button
+                        className="btn btn-primary"
                         onClick={handleSubmit}
-                        className="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-md"
+                        disabled={isSubmitted}
                     >
                         Submit Quiz
                     </button>
-                </div>
-            ) : (
-                <div className="mt-6 bg-white rounded-lg shadow-md p-6">
-                    <h2 className="text-xl font-bold mb-4">Quiz Results</h2>
-                    <p className="text-lg">
-                        Score: {score} out of {quiz.points} points
-                    </p>
-                    <p className="text-gray-600 mt-2">
-                        Percentage: {((score || 0) / quiz.points * 100).toFixed(1)}%
-                    </p>
-                </div>
-            )}
+                ) : (
+                    <button
+                        className="btn btn-primary"
+                        onClick={handleNext}
+                    >
+                        Next
+                    </button>
+                )}
+            </div>
         </div>
     );
 };

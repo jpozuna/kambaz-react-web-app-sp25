@@ -1,11 +1,14 @@
 import React from 'react';
-import { useParams } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import { Quiz } from './reducer';
 import { FaPlus } from 'react-icons/fa';
+import { addQuiz } from './reducer';
 
 const Quizzes = () => {
     const { cid } = useParams();
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
     const { currentUser } = useSelector((state: any) => state.accountReducer);
     const { quizzes } = useSelector((state: any) => state.quizzesReducer) || { quizzes: [] };
     const isFaculty = currentUser?.role === 'FACULTY';
@@ -13,7 +16,18 @@ const Quizzes = () => {
     const courseQuizzes = quizzes.filter((quiz: Quiz) => quiz.courseId === cid);
 
     const handleAddQuiz = () => {
-        // TODO: Implement quiz creation
+        const newQuiz: Quiz = {
+            _id: `quiz-${Date.now()}`,
+            title: 'New Quiz',
+            description: '',
+            courseId: cid || '',
+            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+            timeLimit: 20,
+            questions: [],
+            published: false
+        };
+        dispatch(addQuiz(newQuiz));
+        navigate(`/courses/${cid}/quizzes/${newQuiz._id}/edit`);
     };
 
     return (

@@ -1,85 +1,204 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { FaPlus } from 'react-icons/fa';
-import QuizCard from './QuizCard';
-import { Quiz } from './types';
-import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import { Quiz, User } from './types';
+import QuizList from './QuizList';
+import QuizEditor from './QuizEditor';
+import QuizDetails from './QuizDetails';
+import QuizPreview from './QuizPreview';
+import QuizTaker from './QuizTaker';
+import { loadQuizzes, getQuizzesByCourse, saveQuiz, updateQuiz } from './services/quizService';
+import './styles.css';
 
-interface UserResponse {
-    role: string;
-    // Add other user properties as needed
+interface QuizzesProps {
+    courseId: string;
+    currentUser: User;
 }
 
-const Quizzes: React.FC = () => {
+type View = 'list' | 'editor' | 'details' | 'preview' | 'take';
+
+const Quizzes: React.FC<QuizzesProps> = ({
+    courseId,
+    currentUser
+}) => {
+    const [currentView, setCurrentView] = useState<View>('list');
+    const [selectedQuiz, setSelectedQuiz] = useState<Quiz | null>(null);
     const [quizzes, setQuizzes] = useState<Quiz[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [isFaculty, setIsFaculty] = useState(false);
-    const navigate = useNavigate();
-    const { courseId } = useParams<{ courseId: string }>();
 
-    useEffect(() => {
-        const fetchQuizzes = async () => {
-            try {
-                const [quizzesResponse, userResponse] = await Promise.all([
-                    axios.get<Quiz[]>(`/api/courses/${courseId}/quizzes`),
-                    axios.get<UserResponse>('/api/users/me')
-                ]);
-                setQuizzes(quizzesResponse.data);
-                setIsFaculty(userResponse.data.role === 'faculty');
-                setLoading(false);
-            } catch (err) {
-                setError('Failed to fetch quizzes');
-                setLoading(false);
-            }
-        };
+    console.log('Quizzes component rendered');
+    console.log('Current view:', currentView);
+    console.log('Selected quiz:', selectedQuiz);
 
-        fetchQuizzes();
-    }, [courseId]);
-
-    const handleCreateQuiz = () => {
-        navigate(`/courses/${courseId}/quizzes/create`);
+    const loadQuizzesForCourse = () => {
+        const courseQuizzes = getQuizzesByCourse(courseId);
+        // Convert string dates to Date objects
+        const quizzesWithDates = courseQuizzes.map(quiz => ({
+            ...quiz,
+            dueDate: new Date(quiz.dueDate),
+            availableDate: new Date(quiz.availableDate),
+            untilDate: new Date(quiz.untilDate),
+            createdAt: new Date(quiz.createdAt),
+            updatedAt: new Date(quiz.updatedAt)
+        }));
+        console.log('Loaded quizzes:', quizzesWithDates);
+        setQuizzes(quizzesWithDates);
     };
 
-    if (loading) {
-        return <div className="flex justify-center items-center h-64">Loading...</div>;
-    }
+    useEffect(() => {
+        loadQuizzesForCourse();
+    }, [courseId]);
 
-    if (error) {
-        return <div className="text-red-500 text-center">{error}</div>;
-    }
+    useEffect(() => {
+        console.log('Quizzes useEffect - view changed:', currentView);
+        if (currentView === 'list') {
+            loadQuizzesForCourse();
+        }
+    }, [currentView]);
+
+    const handleQuizClick = (quiz: Quiz) => {
+        console.log('Quiz clicked:', quiz);
+        setSelectedQuiz(quiz);
+        setCurrentView('details');
+    };
+
+    const handleAddQuiz = () => {
+        console.log('Add quiz clicked');
+        console.log('Current user role:', currentUser.role);
+        const newQuiz: Quiz = {
+            id: `quiz-${Date.now()}`,
+            title: 'New Quiz',
+            description: '',
+            courseId,
+            type: 'graded',
+            points: 0,
+            assignmentGroup: 'quizzes',
+            shuffleAnswers: true,
+            timeLimit: 20,
+            multipleAttempts: false,
+            attemptsAllowed: 1,
+            showCorrectAnswers: false,
+            accessCode: '',
+            oneQuestionAtATime: true,
+            webcamRequired: false,
+            lockQuestionsAfterAnswering: false,
+            dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            availableDate: new Date(),
+            untilDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            isPublished: false,
+            questions: [],
+            createdAt: new Date(),
+            updatedAt: new Date()
+        };
+        console.log('Creating new quiz:', newQuiz);
+        setSelectedQuiz(newQuiz);
+        setCurrentView('editor');
+    };
+
+    const handleEdit = () => {
+        console.log('Edit clicked');
+        setCurrentView('editor');
+    };
+
+    const handlePreview = () => {
+        console.log('Preview clicked');
+        setCurrentView('preview');
+    };
+
+    const handleStart = () => {
+        console.log('Start clicked');
+        setCurrentView('take');
+    };
+
+    const handleSave = (quiz: Quiz) => {
+        console.log('Save clicked:', quiz);
+        // Check if this is a new quiz or an update
+        const existingQuiz = quizzes.find(q => q.id === quiz.id);
+        if (existingQuiz) {
+            console.log('Updating existing quiz');
+            updateQuiz(quiz);
+        } else {
+            console.log('Saving new quiz');
+            saveQuiz(quiz);
+        }
+        setSelectedQuiz(quiz);
+        setCurrentView('list');
+        loadQuizzesForCourse(); // Refresh the quiz list
+    };
+
+    const handleCancel = () => {
+        console.log('Cancel clicked');
+        setCurrentView('list');
+        loadQuizzesForCourse(); // Refresh the quiz list
+    };
+
+    const handleComplete = () => {
+        console.log('Complete clicked');
+        setCurrentView('list');
+    };
+
+    const renderView = () => {
+        console.log('Rendering view:', currentView);
+        console.log('Selected quiz in renderView:', selectedQuiz);
+        
+        switch (currentView) {
+            case 'list':
+                return (
+                    <QuizList
+                        courseId={courseId}
+                        currentUser={currentUser}
+                        onQuizClick={handleQuizClick}
+                        onAddQuiz={handleAddQuiz}
+                    />
+                );
+
+            case 'editor':
+                if (!selectedQuiz) {
+                    console.error('No quiz selected for editor view');
+                    return null;
+                }
+                console.log('Rendering QuizEditor with quiz:', selectedQuiz);
+                return (
+                    <QuizEditor
+                        quiz={selectedQuiz}
+                        onSave={handleSave}
+                        onCancel={handleCancel}
+                    />
+                );
+
+            case 'details':
+                return selectedQuiz ? (
+                    <QuizDetails
+                        quiz={selectedQuiz}
+                        currentUser={currentUser}
+                        onEdit={handleEdit}
+                        onPreview={handlePreview}
+                        onStart={handleStart}
+                    />
+                ) : null;
+
+            case 'preview':
+                return selectedQuiz ? (
+                    <QuizPreview
+                        quiz={selectedQuiz}
+                        onEdit={handleEdit}
+                    />
+                ) : null;
+
+            case 'take':
+                return selectedQuiz ? (
+                    <QuizTaker
+                        quiz={selectedQuiz}
+                        userId={currentUser.id}
+                        onComplete={handleComplete}
+                    />
+                ) : null;
+
+            default:
+                return null;
+        }
+    };
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="flex justify-between items-center mb-6">
-                <h1 className="text-2xl font-bold">Quizzes</h1>
-                {isFaculty && (
-                    <button
-                        onClick={handleCreateQuiz}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2"
-                    >
-                        <FaPlus /> Create Quiz
-                    </button>
-                )}
-            </div>
-            
-            {quizzes.length === 0 ? (
-                <div className="text-center text-gray-500 mt-8">
-                    {isFaculty 
-                        ? "No quizzes yet. Click 'Create Quiz' to add one!"
-                        : "No quizzes available yet."}
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {quizzes.map((quiz) => (
-                        <QuizCard
-                            key={quiz._id}
-                            quiz={quiz}
-                            isFaculty={isFaculty}
-                        />
-                    ))}
-                </div>
-            )}
+        <div className="quizzes-container">
+            {renderView()}
         </div>
     );
 };

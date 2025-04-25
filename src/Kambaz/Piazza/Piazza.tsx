@@ -1,7 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaSearch, FaFilter, FaBell, FaCog, FaPlus, FaArrowLeft } from 'react-icons/fa';
 import NewPostScreen from './NewPostScreen';
+import { loadPosts, loadFolders, loadUsers, savePost, updatePost, saveFolder, updateFolder } from './services/piazzaService';
+import { Post, User, Folder } from './types';
 import './styles.css';
+import ReactQuill from 'react-quill';
 
 interface PiazzaProps {
     courseName: string;
@@ -10,99 +13,54 @@ interface PiazzaProps {
     userId: string;
 }
 
-interface Response {
-    id: string;
-    content: string;
-    author: {
-        id: string;
-        name: string;
-    };
-    createdAt: Date;
-}
-
-interface Post {
-    id: string;
-    title: string;
-    content: string;
-    author: {
-        id: string;
-        name: string;
-    };
-    folder?: string;
-    createdAt: Date;
-    status: 'resolved' | 'unresolved';
-    tags: string[];
-    responses: Response[];
-}
-
-interface User {
-    id: string;
-    name: string;
-    role: 'student' | 'instructor';
-}
-
-interface Folder {
-    id: string;
-    name: string;
-    count: number;
-}
-
 const Piazza: React.FC<PiazzaProps> = ({ courseName, userName, userRole, userId }) => {
     const [selectedFolder, setSelectedFolder] = useState<string>('');
     const [selectedPost, setSelectedPost] = useState<Post | null>(null);
     const [showNewPost, setShowNewPost] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [filterType, setFilterType] = useState<'all' | 'unresolved' | 'resolved'>('all');
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [folders, setFolders] = useState<Folder[]>([]);
+    const [users, setUsers] = useState<User[]>([]);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editContent, setEditContent] = useState('');
+    const [newResponse, setNewResponse] = useState('');
 
-    // Mock data - replace with actual data from your backend
-    const mockUsers: User[] = [
-        { id: '1', name: 'Dr. Smith', role: 'instructor' },
-        { id: '2', name: 'John Doe', role: 'student' },
-        { id: '3', name: 'Jane Smith', role: 'student' }
-    ];
+    // Initialize with default folders if none exist in localStorage
+    useEffect(() => {
+        const loadData = () => {
+            const loadedPosts = loadPosts();
+            const loadedFolders = loadFolders();
+            const loadedUsers = loadUsers();
+            
+            // If no folders exist, initialize with default folders
+            if (loadedFolders.length === 0) {
+                const defaultFolders: Folder[] = [
+                    { id: '1', name: 'Homework', count: 0 },
+                    { id: '2', name: 'Lectures', count: 0 },
+                    { id: '3', name: 'Projects', count: 0 },
+                    { id: '4', name: 'Announcements', count: 0 },
+                    { id: '5', name: 'Exams', count: 0 },
+                    { id: '6', name: 'Discussion', count: 0 },
+                    { id: '7', name: 'Resources', count: 0 },
+                    { id: '8', name: 'Office Hours', count: 0 },
+                    { id: '9', name: 'Group Work', count: 0 },
+                    { id: '10', name: 'General', count: 0 }
+                ];
+                defaultFolders.forEach(folder => saveFolder(folder));
+                setFolders(defaultFolders);
+            } else {
+                setFolders(loadedFolders);
+            }
+            
+            setPosts(loadedPosts);
+            setUsers(loadedUsers);
+        };
 
-    const mockPosts: Post[] = [
-        {
-            id: '1',
-            title: 'Question about Assignment 1',
-            content: 'I have a question about the first problem in Assignment 1...',
-            author: { id: '2', name: 'John Doe' },
-            folder: 'hw1',
-            createdAt: new Date(),
-            status: 'unresolved',
-            tags: ['homework', 'assignment1'],
-            responses: [
-                {
-                    id: 'f1',
-                    content: 'Could you clarify what you mean by recursive?',
-                    author: { id: '3', name: 'Jane Smith' },
-                    createdAt: new Date()
-                }
-            ]
-        },
-        {
-            id: '2',
-            title: 'Important Announcement: Midterm Date Change',
-            content: 'The midterm exam has been rescheduled...',
-            author: { id: '1', name: 'Dr. Smith' },
-            createdAt: new Date(Date.now() - 86400000),
-            status: 'resolved',
-            tags: ['announcement', 'midterm'],
-            responses: []
-        }
-    ];
+        loadData();
+    }, []);
 
-    const folders: Folder[] = [
-        { id: '1', name: 'Homework', count: 5 },
-        { id: '2', name: 'Lectures', count: 10 },
-        { id: '3', name: 'Projects', count: 3 },
-        { id: '4', name: 'Announcements', count: 2 }
-    ];
-
-    // Convert folders to string array for NewPostScreen
-    const folderNames = folders.map(folder => folder.name);
-
-    const filteredPosts = mockPosts
+    const filteredPosts = posts
         .filter(post => {
             if (selectedFolder && selectedFolder !== 'all' && post.folder !== selectedFolder) return false;
             if (filterType !== 'all' && post.status !== filterType) return false;
@@ -142,13 +100,80 @@ const Piazza: React.FC<PiazzaProps> = ({ courseName, userName, userRole, userId 
             responses: []
         };
 
-        // Add to posts list
-        mockPosts.unshift(newPost);
+        // Save post to local storage
+        savePost(newPost);
+        setPosts([newPost, ...posts]);
+
+        // Update folder count
+        const updatedFolders = folders.map(folder => {
+            if (folder.name === newPostData.folders[0]) {
+                return {
+                    ...folder,
+                    count: folder.count + 1
+                };
+            }
+            return folder;
+        });
+        setFolders(updatedFolders);
+        
+        // Save updated folders to local storage
+        updatedFolders.forEach(folder => updateFolder(folder));
+
         setShowNewPost(false);
     };
 
-    const searchExternalAPI = async (query: string) => {
-        // Implement external API search
+    const handlePostUpdate = (updatedPost: Post) => {
+        updatePost(updatedPost);
+        setPosts(posts.map(post => post.id === updatedPost.id ? updatedPost : post));
+    };
+
+    const handleEdit = () => {
+        if (selectedPost) {
+            setIsEditing(true);
+            setEditContent(selectedPost.content);
+        }
+    };
+
+    const handleSaveEdit = () => {
+        if (selectedPost) {
+            const updatedPost = {
+                ...selectedPost,
+                content: editContent
+            };
+            updatePost(updatedPost);
+            setPosts(posts.map(post => post.id === updatedPost.id ? updatedPost : post));
+            setSelectedPost(updatedPost);
+            setIsEditing(false);
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setIsEditing(false);
+        setEditContent('');
+    };
+
+    const handleAddResponse = () => {
+        if (selectedPost && newResponse.trim()) {
+            const response = {
+                id: `response-${Date.now()}`,
+                content: newResponse,
+                author: {
+                    id: userId,
+                    name: userName
+                },
+                createdAt: new Date()
+            };
+
+            const updatedPost = {
+                ...selectedPost,
+                responses: [...selectedPost.responses, response]
+            };
+
+            updatePost(updatedPost);
+            setPosts(posts.map(post => post.id === updatedPost.id ? updatedPost : post));
+            setSelectedPost(updatedPost);
+            setNewResponse('');
+        }
     };
 
     return (
@@ -191,9 +216,9 @@ const Piazza: React.FC<PiazzaProps> = ({ courseName, userName, userRole, userId 
                 <div className="p-3 border-top">
                     <h6 className="text-muted mb-2">Statistics</h6>
                     <div className="small text-muted">
-                        <div>Total Posts: {mockPosts.length}</div>
-                        <div>Unresolved: {mockPosts.filter(p => p.status === 'unresolved').length}</div>
-                        <div>Your Posts: {mockPosts.filter(p => p.author.id === userId).length}</div>
+                        <div>Total Posts: {posts.length}</div>
+                        <div>Unresolved: {posts.filter(p => p.status === 'unresolved').length}</div>
+                        <div>Your Posts: {posts.filter(p => p.author.id === userId).length}</div>
                     </div>
                 </div>
             </div>
@@ -208,7 +233,7 @@ const Piazza: React.FC<PiazzaProps> = ({ courseName, userName, userRole, userId 
                                 <input
                                     type="text"
                                     className="form-control"
-                                    placeholder="Search posts..."
+                                    placeholder="Search posts by title, content, or author..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
                                 />
@@ -244,15 +269,51 @@ const Piazza: React.FC<PiazzaProps> = ({ courseName, userName, userRole, userId 
                                         </div>
                                     </div>
                                     <div>
-                                        <button className="piazza-btn piazza-btn-outline me-2">Edit</button>
-                                        <button className="piazza-btn piazza-btn-primary">Answer</button>
+                                        {selectedPost.author.id === userId && (
+                                            <button 
+                                                className="piazza-btn piazza-btn-outline me-2"
+                                                onClick={handleEdit}
+                                            >
+                                                Edit
+                                            </button>
+                                        )}
+                                        <button 
+                                            className="piazza-btn piazza-btn-primary"
+                                            onClick={() => setNewResponse('')}
+                                        >
+                                            Answer
+                                        </button>
                                     </div>
                                 </div>
                             </div>
                             <div className="post-body mt-4">
                                 <div className="mb-4">
                                     <h5 className="mb-3">Question</h5>
-                                    <div className="p-3 bg-light rounded">{selectedPost.content}</div>
+                                    {isEditing ? (
+                                        <div>
+                                            <ReactQuill
+                                                value={editContent}
+                                                onChange={setEditContent}
+                                                theme="snow"
+                                            />
+                                            <div className="mt-3">
+                                                <button 
+                                                    className="btn btn-primary me-2"
+                                                    onClick={handleSaveEdit}
+                                                >
+                                                    Save
+                                                </button>
+                                                <button 
+                                                    className="btn btn-outline-secondary"
+                                                    onClick={handleCancelEdit}
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="p-3 bg-light rounded">{selectedPost.content}</div>
+                                    )}
                                 </div>
                                 {selectedPost.responses.map(response => (
                                     <div key={response.id} className="mb-4">
@@ -263,6 +324,26 @@ const Piazza: React.FC<PiazzaProps> = ({ courseName, userName, userRole, userId 
                                         </div>
                                     </div>
                                 ))}
+                                <div className="mb-4">
+                                    <h5 className="mb-3">Add Response</h5>
+                                    <div className="piazza-editor">
+                                        <ReactQuill
+                                            value={newResponse}
+                                            onChange={setNewResponse}
+                                            theme="snow"
+                                            placeholder="Write your response here..."
+                                        />
+                                    </div>
+                                    <div className="mt-3">
+                                        <button 
+                                            className="btn btn-primary"
+                                            onClick={handleAddResponse}
+                                            disabled={!newResponse.trim()}
+                                        >
+                                            Post Response
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     ) : (
@@ -303,8 +384,8 @@ const Piazza: React.FC<PiazzaProps> = ({ courseName, userName, userRole, userId 
                 <NewPostScreen
                     onClose={() => setShowNewPost(false)}
                     onSave={handlePostSave}
-                    users={mockUsers}
-                    folders={folderNames}
+                    users={users}
+                    folders={folders.map(f => f.name)}
                 />
             )}
         </div>

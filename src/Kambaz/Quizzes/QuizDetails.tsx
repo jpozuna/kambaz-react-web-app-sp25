@@ -1,139 +1,173 @@
-import React from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
-import { FaEdit, FaEye, FaPlay } from 'react-icons/fa';
-import { Quiz } from './types';
+import React, { useState } from 'react';
+import { FaEdit, FaEye } from 'react-icons/fa';
+import { Quiz, User } from './types';
+import './styles.css';
 
 interface QuizDetailsProps {
     quiz: Quiz;
-    isFaculty: boolean;
+    currentUser: User;
+    onEdit: () => void;
+    onPreview: () => void;
+    onStart: () => void;
 }
 
-const QuizDetails: React.FC<QuizDetailsProps> = ({ quiz, isFaculty }) => {
-    const navigate = useNavigate();
-    const { courseId } = useParams<{ courseId: string }>();
+const QuizDetails: React.FC<QuizDetailsProps> = ({
+    quiz,
+    currentUser,
+    onEdit,
+    onPreview,
+    onStart
+}) => {
+    const [activeTab, setActiveTab] = useState<'details' | 'questions'>('details');
 
-    const formatDate = (date: string) => {
-        return new Date(date).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-            hour: '2-digit',
-            minute: '2-digit'
-        });
+    const getQuizStatus = () => {
+        const now = new Date();
+        if (now > quiz.untilDate) return 'Closed';
+        if (now < quiz.availableDate) return `Not available until ${quiz.availableDate.toLocaleDateString()}`;
+        if (!quiz.isPublished) return 'Not published yet';
+        return 'Available';
     };
 
-    const handleEdit = () => {
-        navigate(`/courses/${courseId}/quizzes/${quiz._id}/edit`);
-    };
-
-    const handlePreview = () => {
-        navigate(`/courses/${courseId}/quizzes/${quiz._id}/preview`);
-    };
-
-    const handleStartQuiz = () => {
-        navigate(`/courses/${courseId}/quizzes/${quiz._id}/take`);
-    };
+    const quizStatus = getQuizStatus();
 
     return (
-        <div className="container mx-auto px-4 py-8">
-            <div className="bg-white rounded-lg shadow-md p-6">
-                <div className="flex justify-between items-center mb-6">
-                    <h1 className="text-2xl font-bold">{quiz.title}</h1>
-                    {isFaculty ? (
-                        <div className="flex gap-4">
+        <div className="quiz-details-container">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <h2>{quiz.title}</h2>
+                <div>
+                    {currentUser.role === 'FACULTY' ? (
+                        <>
                             <button
-                                onClick={handlePreview}
-                                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md flex items-center gap-2"
+                                className="btn btn-outline-primary me-2"
+                                onClick={onPreview}
                             >
-                                <FaEye /> Preview
+                                <FaEye className="me-2" />
+                                Preview
                             </button>
                             <button
-                                onClick={handleEdit}
-                                className="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md flex items-center gap-2"
+                                className="btn btn-primary"
+                                onClick={onEdit}
                             >
-                                <FaEdit /> Edit
+                                <FaEdit className="me-2" />
+                                Edit
                             </button>
-                        </div>
+                        </>
                     ) : (
-                        <button
-                            onClick={handleStartQuiz}
-                            className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md flex items-center gap-2"
-                            disabled={!quiz.published}
-                        >
-                            <FaPlay /> {quiz.published ? 'Start Quiz' : 'Not Available'}
-                        </button>
+                        <div>
+                            <button
+                                className="btn btn-primary"
+                                onClick={onStart}
+                                disabled={quizStatus !== 'Available'}
+                            >
+                                Start Quiz
+                            </button>
+                            {quizStatus !== 'Available' && (
+                                <div className="text-muted mt-2">
+                                    {quizStatus}
+                                </div>
+                            )}
+                        </div>
                     )}
                 </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                        <div>
-                            <h3 className="font-semibold text-gray-700">Quiz Type</h3>
-                            <p className="text-gray-600">{quiz.quizType.replace('-', ' ').toUpperCase()}</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-700">Points</h3>
-                            <p className="text-gray-600">{quiz.points}</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-700">Assignment Group</h3>
-                            <p className="text-gray-600">{quiz.assignmentGroup.toUpperCase()}</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-700">Shuffle Answers</h3>
-                            <p className="text-gray-600">{quiz.shuffleAnswers ? 'Yes' : 'No'}</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-700">Time Limit</h3>
-                            <p className="text-gray-600">{quiz.timeLimit} Minutes</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-700">Multiple Attempts</h3>
-                            <p className="text-gray-600">
-                                {quiz.multipleAttempts ? `Yes (${quiz.attemptsAllowed} attempts)` : 'No'}
-                            </p>
-                        </div>
-                    </div>
-
-                    <div className="space-y-4">
-                        <div>
-                            <h3 className="font-semibold text-gray-700">Show Correct Answers</h3>
-                            <p className="text-gray-600">{quiz.showCorrectAnswers.replace('-', ' ').toUpperCase()}</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-700">Access Code</h3>
-                            <p className="text-gray-600">{quiz.accessCode || 'None'}</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-700">One Question at a Time</h3>
-                            <p className="text-gray-600">{quiz.oneQuestionAtATime ? 'Yes' : 'No'}</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-700">Webcam Required</h3>
-                            <p className="text-gray-600">{quiz.webcamRequired ? 'Yes' : 'No'}</p>
-                        </div>
-                        <div>
-                            <h3 className="font-semibold text-gray-700">Lock Questions After Answering</h3>
-                            <p className="text-gray-600">{quiz.lockQuestionsAfterAnswering ? 'Yes' : 'No'}</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div className="mt-8 space-y-4">
-                    <div>
-                        <h3 className="font-semibold text-gray-700">Due Date</h3>
-                        <p className="text-gray-600">{formatDate(quiz.dueDate)}</p>
-                    </div>
-                    <div>
-                        <h3 className="font-semibold text-gray-700">Available From</h3>
-                        <p className="text-gray-600">{formatDate(quiz.availableFrom)}</p>
-                    </div>
-                    <div>
-                        <h3 className="font-semibold text-gray-700">Available Until</h3>
-                        <p className="text-gray-600">{formatDate(quiz.availableUntil)}</p>
-                    </div>
-                </div>
             </div>
+
+            <div className="quiz-tabs mb-4">
+                <button
+                    className={`btn ${activeTab === 'details' ? 'btn-primary' : 'btn-outline-primary'} me-2`}
+                    onClick={() => setActiveTab('details')}
+                >
+                    Details
+                </button>
+                <button
+                    className={`btn ${activeTab === 'questions' ? 'btn-primary' : 'btn-outline-primary'}`}
+                    onClick={() => setActiveTab('questions')}
+                >
+                    Questions
+                </button>
+            </div>
+
+            {activeTab === 'details' ? (
+                <div className="quiz-details">
+                    <div className="row">
+                        <div className="col-md-6">
+                            <div className="mb-3">
+                                <label className="form-label">Quiz Type</label>
+                                <p>{quiz.type}</p>
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Points</label>
+                                <p>{quiz.points}</p>
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Assignment Group</label>
+                                <p>{quiz.assignmentGroup}</p>
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Shuffle Answers</label>
+                                <p>{quiz.shuffleAnswers ? 'Yes' : 'No'}</p>
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Time Limit</label>
+                                <p>{quiz.timeLimit} minutes</p>
+                            </div>
+                        </div>
+                        <div className="col-md-6">
+                            <div className="mb-3">
+                                <label className="form-label">Multiple Attempts</label>
+                                <p>{quiz.multipleAttempts ? 'Yes' : 'No'}</p>
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Show Correct Answers</label>
+                                <p>{quiz.showCorrectAnswers ? 'Yes' : 'No'}</p>
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Access Code</label>
+                                <p>{quiz.accessCode || 'None'}</p>
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">One Question at a Time</label>
+                                <p>{quiz.oneQuestionAtATime ? 'Yes' : 'No'}</p>
+                            </div>
+                            <div className="mb-3">
+                                <label className="form-label">Webcam Required</label>
+                                <p>{quiz.webcamRequired ? 'Yes' : 'No'}</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="row mt-4">
+                        <div className="col-md-4">
+                            <div className="mb-3">
+                                <label className="form-label">Due Date</label>
+                                <p>{quiz.dueDate.toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        <div className="col-md-4">
+                            <div className="mb-3">
+                                <label className="form-label">Available Date</label>
+                                <p>{quiz.availableDate.toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        <div className="col-md-4">
+                            <div className="mb-3">
+                                <label className="form-label">Until Date</label>
+                                <p>{quiz.untilDate.toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ) : (
+                <div className="quiz-questions">
+                    <h3>Questions ({quiz.questions.length})</h3>
+                    {quiz.questions.map((question, index) => (
+                        <div key={question.id} className="question-item">
+                            <h4>Question {index + 1}</h4>
+                            <p>{question.title}</p>
+                            <p>Points: {question.points}</p>
+                            <p>Type: {question.type}</p>
+                        </div>
+                    ))}
+                </div>
+            )}
         </div>
     );
 };

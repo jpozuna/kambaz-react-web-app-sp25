@@ -1,47 +1,70 @@
+export interface User {
+    id: string;
+    name: string;
+    role: 'FACULTY' | 'STUDENT';
+}
+
+export interface Course {
+    id: string;
+    name: string;
+    facultyId: string;
+    enrolledStudents: string[];
+}
+
 export interface Quiz {
-    _id: string;
+    id: string;
     title: string;
-    description?: string;
-    points: number;
-    availableFrom: string;
-    availableUntil: string;
-    dueDate: string;
-    published: boolean;
+    description: string;
     courseId: string;
-    questions?: Question[];
-    quizType: 'graded-quiz' | 'practice-quiz' | 'graded-survey' | 'ungraded-survey';
+    type: 'graded' | 'practice' | 'graded-survey' | 'ungraded-survey';
+    points: number;
     assignmentGroup: 'quizzes' | 'exams' | 'assignments' | 'project';
     shuffleAnswers: boolean;
-    timeLimit: number; // in minutes
+    timeLimit: number;
     multipleAttempts: boolean;
     attemptsAllowed: number;
-    showCorrectAnswers: 'never' | 'after-submission' | 'after-due-date';
-    accessCode?: string;
+    showCorrectAnswers: boolean;
+    accessCode: string;
     oneQuestionAtATime: boolean;
     webcamRequired: boolean;
     lockQuestionsAfterAnswering: boolean;
+    dueDate: Date;
+    availableDate: Date;
+    untilDate: Date;
+    isPublished: boolean;
+    questions: Question[];
+    createdAt: Date;
+    updatedAt: Date;
 }
 
 export interface Question {
-    _id: string;
-    title?: string;
-    text: string;
-    type: 'multiple-choice' | 'true-false' | 'fill-blank';
+    id: string;
+    title: string;
     points: number;
-    options?: string[];  // For multiple choice
-    correctAnswer: string | string[] | boolean;  // string[] for multiple choice, boolean for true/false, string[] for fill in blank
-    caseSensitive?: boolean;  // For fill in blank questions
+    type: 'multiple-choice' | 'true-false' | 'fill-blank';
+    content: string;
+    options?: QuestionOption[];
+    correctAnswer?: string | string[];
+}
+
+export interface QuestionOption {
+    id: string;
+    content: string;
+    isCorrect: boolean;
 }
 
 export interface QuizAttempt {
-    _id: string;
+    id: string;
     quizId: string;
     userId: string;
-    startTime: string;
-    endTime?: string;
-    score?: number;
-    answers: {
-        questionId: string;
-        answer: string | boolean;
-    }[];
+    answers: QuizAnswer[];
+    score: number;
+    startedAt: Date;
+    submittedAt: Date;
+}
+
+export interface QuizAnswer {
+    questionId: string;
+    answer: string | string[];
+    isCorrect: boolean;
 } 

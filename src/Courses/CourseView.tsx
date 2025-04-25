@@ -4,8 +4,8 @@ import MenuIcon from '@mui/icons-material/Menu';
 import ClassAtAGlance from './ClassAtAGlance';
 import ManageClass from './ManageClass';
 import CourseNavigation from './CourseNavigation';
-import Piazza from './Piazza';
-import Quizzes from './Quizzes';
+import Piazza from '../Kambaz/Piazza/Piazza';
+import Quizzes from '../Kambaz/Quizzes/Quizzes';
 import { Routes, Route, useLocation, Navigate } from 'react-router-dom';
 
 interface CourseViewProps {
@@ -18,9 +18,20 @@ interface CourseViewProps {
     studentResponses: number;
     enrolledStudents: number;
   };
+  currentUser: {
+    id: string;
+    name: string;
+    role: 'faculty' | 'student';
+  };
+  courseId: string;
 }
 
-const CourseView: React.FC<CourseViewProps> = ({ isInstructor, courseStats }) => {
+const CourseView: React.FC<CourseViewProps> = ({ 
+  isInstructor, 
+  courseStats,
+  currentUser,
+  courseId 
+}) => {
   const location = useLocation();
   const pathSegments = location.pathname.split('/').filter(Boolean);
 
@@ -93,11 +104,23 @@ const CourseView: React.FC<CourseViewProps> = ({ isInstructor, courseStats }) =>
             />
             <Route 
               path="piazza/*" 
-              element={<Piazza />} 
+              element={
+                <Piazza
+                  courseName="CS5610.35649.202530"
+                  userName={currentUser.name}
+                  userRole={currentUser.role === 'faculty' ? 'instructor' : 'student'}
+                  userId={currentUser.id}
+                />
+              } 
             />
             <Route 
               path="quizzes" 
-              element={<Quizzes />} 
+              element={
+                <Quizzes 
+                  courseId={courseId}
+                  currentUser={currentUser}
+                />
+              } 
             />
             <Route 
               path="manage/*" 

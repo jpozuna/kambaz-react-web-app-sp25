@@ -1,20 +1,21 @@
-import { Navigate, Route, Routes, useParams, useLocation } from "react-router-dom";
-import CoursesNavigation from "./Navigation";
-import Modules from "./Modules";
-import Home from "./Home";
-import Assignments from "./Assignments";
-import AssignmentEditor from "./Assignments/Editor";
-import { FaAlignJustify } from "react-icons/fa";
-import PeopleTable from "./People/Table";
-import Quizzes from "../Quizzes";
-import Piazza from "../Piazza/Piazza";
+import React from 'react';
+import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
+import { FaAlignJustify } from 'react-icons/fa';
+import CoursesNavigation from './Navigation';
+import Home from './Home';
+import Modules from './Modules';
+import Assignments from './Assignments';
+import AssignmentEditor from './Assignments/Editor';
+import Quizzes from '../Quizzes/Quizzes';
+import Piazza from '../Piazza/Piazza';
+import PeopleTable from './People/Table';
 import { useSelector } from "react-redux";
 
 export default function Courses({ courses }: { courses: any[]; }) {
     const { cid } = useParams();
-    const course = courses.find((course) => course._id === cid);
     const { pathname } = useLocation();
-    const currentSection = pathname.split("/")[4] || "Home";
+    const course = courses.find(c => c._id === cid);
+    const currentSection = pathname.split('/').pop();
     const { currentUser } = useSelector((state: any) => state.accountReducer);
 
     return (
@@ -35,7 +36,7 @@ export default function Courses({ courses }: { courses: any[]; }) {
                         <Route path="Modules" element={<Modules />} />
                         <Route path="Assignments" element={<Assignments/>}/>
                         <Route path="Assignments/:aid" element={<AssignmentEditor/>}/>
-                        <Route path="Quizzes" element={<Quizzes/>}/>
+                        <Route path="Quizzes" element={<Quizzes courseId={cid || ''} currentUser={currentUser} />}/>
                         <Route path="Piazza" element={
                             <Piazza 
                                 courseName={course?.name || ""} 

@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 
 interface Course {
@@ -44,10 +44,19 @@ export default function Dashboard({
     const isStudent = !isAdmin && !isFaculty;
     const [newCourse, setNewCourse] = useState({ name: '', description: '' });
     const [selectedFilter, setSelectedFilter] = useState('All Courses');
+    const [enrolledCount, setEnrolledCount] = useState(0);
+    const [enrolledCourses, setEnrolledCourses] = useState<Course[]>([]);
+
+    // Update enrolled courses and count whenever courses change
+    useEffect(() => {
+        const enrolled = courses.filter(course => course.enrolled);
+        setEnrolledCourses(enrolled);
+        setEnrolledCount(enrolled.length);
+    }, [courses]);
 
     // Filter courses based on enrollment status
     const filteredCourses = selectedFilter === 'My Enrollments' 
-        ? courses.filter(course => course.enrolled)
+        ? enrolledCourses
         : courses;
 
     const handleAddCourse = () => {
@@ -85,11 +94,31 @@ export default function Dashboard({
         navigate(`/Kambaz/Courses/${courseId}/Home`);
     };
 
+    const handleEnrollment = async (courseId: string, enrolled: boolean) => {
+        setEnrolling(true);
+        try {
+            await updateEnrollment(courseId, enrolled);
+            // Update the enrolled courses list and count
+            if (enrolled) {
+                const courseToAdd = courses.find(c => c._id === courseId);
+                if (courseToAdd) {
+                    setEnrolledCourses(prev => [...prev, { ...courseToAdd, enrolled: true }]);
+                    setEnrolledCount(prev => prev + 1);
+                }
+            } else {
+                setEnrolledCourses(prev => prev.filter(c => c._id !== courseId));
+                setEnrolledCount(prev => prev - 1);
+            }
+        } finally {
+            setEnrolling(false);
+        }
+    };
+
     return (
         <div className="container-fluid p-4">
             <div className="row">
                 {/* Left Sidebar */}
-                <div className="col-md-2">
+                <div className="col-md-3">
                     <div className="list-group">
                         <button 
                             className={`list-group-item list-group-item-action ${selectedFilter === 'All Courses' ? 'active' : ''}`}
@@ -104,7 +133,7 @@ export default function Dashboard({
                             >
                                 My Enrollments
                                 <span className="badge bg-primary rounded-pill float-end">
-                                    {courses.filter(course => course.enrolled).length}
+                                    {enrolledCount}
                                 </span>
                             </button>
                         )}
@@ -112,7 +141,7 @@ export default function Dashboard({
                 </div>
 
                 {/* Main Content */}
-                <div className="col-md-10">
+                <div className="col-md-9">
                     <div className="d-flex justify-content-between align-items-center mb-4">
                         <h2 className="mb-0">
                             {selectedFilter === 'My Enrollments' ? 'My Enrolled Courses' : 'Course Dashboard'}
@@ -126,7 +155,7 @@ export default function Dashboard({
                                 <h5 className="mb-0">Course Management</h5>
                             </div>
                             <div className="card-body">
-                                <div className="row g-3">
+                                <div className="row">
                                     <div className="col-md-4">
                                         <input
                                             type="text"
@@ -262,7 +291,7 @@ export default function Dashboard({
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            updateEnrollment(course._id, !course.enrolled);
+                                                            handleEnrollment(course._id, !course.enrolled);
                                                         }}
                                                         className={`btn btn-${course.enrolled ? 'outline-danger' : 'outline-success'}`}
                                                         disabled={enrolling}

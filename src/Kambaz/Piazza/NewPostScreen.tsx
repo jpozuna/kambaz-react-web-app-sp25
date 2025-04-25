@@ -80,6 +80,9 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
                 <div className="p-4">
                     <div className="mb-4">
                         <label className="d-block mb-2">Post Type</label>
+                        <small className="text-muted d-block mb-2">
+                            Choose whether this is a question or a note/announcement
+                        </small>
                         <div className="btn-group" role="group">
                             <button
                                 type="button"
@@ -100,12 +103,15 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
 
                     <div className="mb-4">
                         <label className="d-block mb-2">Title</label>
+                        <small className="text-muted d-block mb-2">
+                            Choose a clear, descriptive title that summarizes your post
+                        </small>
                         <input
                             type="text"
                             className={`form-control ${errors.title ? 'is-invalid' : ''}`}
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            placeholder="Enter a descriptive title"
+                            placeholder="Enter a descriptive title for your post"
                         />
                         {errors.title && (
                             <div className="invalid-feedback">{errors.title}</div>
@@ -114,11 +120,15 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
 
                     <div className="mb-4">
                         <label className="d-block mb-2">Content</label>
+                        <small className="text-muted d-block mb-2">
+                            Write your question or announcement in detail. You can use the toolbar to format your text.
+                        </small>
                         <div className={`piazza-editor ${errors.content ? 'border-danger' : ''}`}>
                             <ReactQuill
                                 value={content}
                                 onChange={setContent}
                                 theme="snow"
+                                placeholder="Write your post content here..."
                             />
                         </div>
                         {errors.content && (
@@ -128,6 +138,9 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
 
                     <div className="mb-4">
                         <label className="d-block mb-2">Folder</label>
+                        <small className="text-muted d-block mb-2">
+                            Select the appropriate folder for your post
+                        </small>
                         <select
                             className={`form-select ${errors.folders ? 'is-invalid' : ''}`}
                             value={selectedFolders[0] || ''}
@@ -147,6 +160,9 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
 
                     <div className="mb-4">
                         <label className="d-block mb-2">Visibility</label>
+                        <small className="text-muted d-block mb-2">
+                            Choose who can see this post
+                        </small>
                         <div className="d-flex align-items-center gap-3">
                             <div className="btn-group" role="group">
                                 <button
@@ -178,6 +194,9 @@ const NewPostScreen: React.FC<NewPostScreenProps> = ({
                     {visibility === 'selected-users' && (
                         <div className="mb-4">
                             <label className="d-block mb-2">Select Users</label>
+                            <small className="text-muted d-block mb-2">
+                                Choose which users can see this post
+                            </small>
                             <div className="border rounded p-3" style={{ maxHeight: '200px', overflowY: 'auto' }}>
                                 {users.map((user) => (
                                     <div key={user.id} className="form-check">
