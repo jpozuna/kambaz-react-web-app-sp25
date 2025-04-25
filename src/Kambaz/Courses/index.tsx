@@ -22,13 +22,17 @@ export default function Courses({ courses }: { courses: any[]; }) {
             <hr/>
             <div className="d-flex">
                 <div className="d-none d-md-block">
-                    <CoursesNavigation cid={cid} pathname={location.pathname}/>
+                    <CoursesNavigation 
+                        cid={cid} 
+                        pathname={location.pathname}
+                        links={["Home", "Modules", "Assignments", "Quizzes", "People"]}
+                    />
                 </div>
                 <div className="flex-fill">
                     <Routes>
                         <Route path="/" element={<Navigate to="Home"/>}/>
                         <Route path="Home" element={<Home/>}/>
-                        <Route path="/Courses/:cid/Modules" element={<Modules />} />
+                        <Route path="Modules" element={<Modules />} />
                         <Route path="Assignments" element={<Assignments/>}/>
                         <Route path="Assignments/:aid" element={<AssignmentEditor/>}/>
                         <Route path="People" element={<PeopleTable/>}/>

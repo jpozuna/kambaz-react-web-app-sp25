@@ -16,8 +16,10 @@ interface Module {
 export default function Modules() {
   const { cid } = useParams();
   const { modules } = useSelector((state: any) => state.modulesReducer);
+  const { currentUser } = useSelector((state: any) => state.accountReducer);
   const dispatch = useDispatch();
   const [moduleName, setModuleName] = useState("");
+  const isFaculty = currentUser?.role === "FACULTY";
 
   const fetchModulesForCourse = async () => {
     if (!cid) return;
@@ -53,27 +55,29 @@ export default function Modules() {
   return (
     <div>
       <ul id="wd-modules" className="list-group rounded-0">
-        <li className="list-group-item p-0 mb-5 fs-5 border-gray">
-          <div className="wd-title p-3 ps-2 bg-secondary">
-            <input
-              className="form-control w-50 d-inline-block"
-              value={moduleName}
-              onChange={(e) => setModuleName(e.target.value)}
-              placeholder="New Module Name"
-            />
-            <button
-              className="btn btn-danger float-end"
-              onClick={createModuleForCourse}
-            >
-              Add
-            </button>
-          </div>
-        </li>
+        {isFaculty && (
+          <li className="list-group-item p-0 mb-5 fs-5 border-gray">
+            <div className="wd-title p-3 ps-2 bg-secondary">
+              <input
+                className="form-control w-50 d-inline-block"
+                value={moduleName}
+                onChange={(e) => setModuleName(e.target.value)}
+                placeholder="New Module Name"
+              />
+              <button
+                className="btn btn-danger float-end"
+                onClick={createModuleForCourse}
+              >
+                Add
+              </button>
+            </div>
+          </li>
+        )}
         {modules.map((module: Module) => (
           <li key={module._id} className="wd-module list-group-item p-0 mb-5 fs-5 border-gray">
             <div className="wd-title p-3 ps-2 bg-secondary">
               {!module.editing && module.name}
-              {module.editing && (
+              {module.editing && isFaculty && (
                 <input
                   className="form-control w-50 d-inline-block"
                   onChange={(e) =>
@@ -93,18 +97,22 @@ export default function Modules() {
                   value={module.name}
                 />
               )}
-              <button
-                className="btn btn-danger float-end"
-                onClick={() => removeModule(module._id)}
-              >
-                Delete
-              </button>
-              <button
-                className="btn btn-primary float-end me-2"
-                onClick={() => dispatch(editModule(module._id))}
-              >
-                Edit
-              </button>
+              {isFaculty && (
+                <>
+                  <button
+                    className="btn btn-danger float-end"
+                    onClick={() => removeModule(module._id)}
+                  >
+                    Delete
+                  </button>
+                  <button
+                    className="btn btn-primary float-end me-2"
+                    onClick={() => dispatch(editModule(module._id))}
+                  >
+                    Edit
+                  </button>
+                </>
+              )}
             </div>
           </li>
         ))}

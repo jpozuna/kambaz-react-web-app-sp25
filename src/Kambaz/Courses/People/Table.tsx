@@ -1,10 +1,34 @@
 import { FaUserCircle } from "react-icons/fa";
 import { Link, useParams } from "react-router-dom";
-import * as db from "../../Database";
+import { useEffect, useState } from "react";
+import * as courseClient from "../client";
 import PeopleDetails from "./Details";
 
-export default function PeopleTable({ users = [] }: { users?: any[] }) {
-    console.log(users);
+interface User {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    loginId: string;
+    section: string;
+    role: string;
+    lastActivity: string;
+    totalActivity: string;
+}
+
+export default function PeopleTable() {
+    const { cid } = useParams();
+    const [users, setUsers] = useState<User[]>([]);
+
+    const fetchUsersForCourse = async () => {
+        if (!cid) return;
+        const courseUsers = await courseClient.findUsersForCourse(cid);
+        setUsers(courseUsers as User[]);
+    };
+
+    useEffect(() => {
+        fetchUsersForCourse();
+    }, [cid]);
+
     return (
         <div id="wd-people-table">
             <PeopleDetails />
@@ -21,7 +45,7 @@ export default function PeopleTable({ users = [] }: { users?: any[] }) {
                 </thead>
 
                 <tbody>
-                {users.map((user: any) => (
+                {users.map((user) => (
                     <tr key={user._id}>
                         <td className="wd-full-name text-nowrap">
                             <Link to={`/Kambaz/Account/Users/${user._id}`} className="text-decoration-none">
