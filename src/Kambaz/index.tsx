@@ -34,12 +34,10 @@ export default function Kambaz() {
         }
     };
 
-
     const addNewCourse = async () => {
         const newCourse = await userClient.createCourse(course);
         setCourses([...courses, newCourse]);
     };
-
 
     const deleteCourse = async (courseId: string) => {
         try {
@@ -52,15 +50,30 @@ export default function Kambaz() {
 
     const fetchCourses = async () => {
         try {
-            const courses = await userClient.findMyCourses();
-            setCourses(courses as any[]);
+            let fetchedCourses;
+            if (currentUser.role === "FACULTY" || currentUser.role === "ADMIN") {
+                // Faculty and admins see all courses
+                fetchedCourses = await courseClient.fetchAllCourses();
+            } else {
+                // Students see all courses but can only enroll in them
+                fetchedCourses = await courseClient.fetchAllCourses();
+                // Get enrolled courses to mark them
+                const enrolledCourses = await userClient.findMyCourses();
+                fetchedCourses = fetchedCourses.map((course: any) => ({
+                    ...course,
+                    enrolled: enrolledCourses.some((ec: any) => ec._id === course._id)
+                }));
+            }
+            setCourses(fetchedCourses as any[]);
         } catch (error) {
-            console.error(error);
+            console.error("Failed to fetch courses:", error);
         }
     };
 
     useEffect(() => {
-        fetchCourses();
+        if (currentUser) {
+            fetchCourses();
+        }
     }, [currentUser]);
 
     return (

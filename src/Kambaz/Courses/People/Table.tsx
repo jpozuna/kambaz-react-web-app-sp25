@@ -1,20 +1,51 @@
-import { Table } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
-import { useParams } from "react-router-dom";
-import * as db from "../../Database";
+import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import * as courseClient from "../client";
+import { useSelector } from "react-redux";
 
-export default function PeopleTable() {
+interface User {
+    _id: string;
+    firstName: string;
+    lastName: string;
+    loginId: string;
+    section: string;
+    role: string;
+    lastActivity: string;
+    totalActivity: string;
+}
+
+interface PeopleTableProps {
+    course: any;
+}
+
+export default function PeopleTable({ course }: PeopleTableProps) {
     const { cid } = useParams();
-    const users = db.users || [];
-    const enrollments = db.enrollment || [];
+    const [users, setUsers] = useState<User[]>([]);
+    const { currentUser } = useSelector((state: any) => state.accountReducer);
+    const isFaculty = currentUser?.role === "FACULTY" || currentUser?.role === "ADMIN";
 
-    const enrolledUsers: typeof users = users.filter((usr) =>
-        enrollments.some((enrollment) => enrollment.user === usr._id && enrollment.course === cid)
-    );
+    const fetchUsersForCourse = async () => {
+        if (!cid) return;
+        const courseUsers = await courseClient.findUsersForCourse(cid);
+        setUsers(courseUsers as User[]);
+    };
+
+    useEffect(() => {
+        fetchUsersForCourse();
+    }, [cid]);
+
+    if (!isFaculty) {
+        return (
+            <div className="alert alert-warning">
+                Access Denied: Only faculty and administrators can view the people page.
+            </div>
+        );
+    }
 
     return (
         <div id="wd-people-table">
-            <Table striped bordered hover responsive>
+            <table className="table table-striped">
                 <thead>
                 <tr>
                     <th>Name</th>
@@ -25,34 +56,26 @@ export default function PeopleTable() {
                     <th>Total Activity</th>
                 </tr>
                 </thead>
-                <tbody>
-                {enrolledUsers.length > 0 ? (
-                    enrolledUsers.map((user) => (
-                        <tr key={user._id}>
-                            <td className="wd-full-name text-nowrap">
-                                <FaUserCircle className="me-2 fs-1 text-secondary"/>
-                                <span className="wd-first-name">{user.firstName}</span>
-                                <span className="wd-last-name"> {user.lastName}</span>
-                            </td>
-                            <td className="wd-login-id">{user.loginId}</td>
-                            <td className="wd-section">{user.section}</td>
-                            <td className="wd-role">{user.role}</td>
-                            <td className="wd-last-activity">{user.lastActivity}</td>
-                            <td className="wd-total-activity">
-                                {typeof user.totalActivity === "number" ? user.totalActivity : parseFloat(user.totalActivity) || 0}
-                            </td>
 
-                        </tr>
-                    ))
-                ) : (
-                    <tr>
-                        <td colSpan={6} className="text-center text-muted">
-                            No users enrolled in this course.
+                <tbody>
+                {users.map((user) => (
+                    <tr key={user._id}>
+                        <td className="wd-full-name text-nowrap">
+                            <Link to={`/Kambaz/Account/Users/${user._id}`} className="text-decoration-none">
+                                <FaUserCircle className="me-2 fs-1 text-secondary" />
+                                <span className="wd-first-name">{user.firstName}</span>{" "}
+                                <span className="wd-last-name">{user.lastName}</span>
+                            </Link>
                         </td>
+                        <td className="wd-login-id">{user.loginId}</td>
+                        <td className="wd-section">{user.section}</td>
+                        <td className="wd-role">{user.role}</td>
+                        <td className="wd-last-activity">{user.lastActivity}</td>
+                        <td className="wd-total-activity">{user.totalActivity}</td>
                     </tr>
-                )}
+                ))}
                 </tbody>
-            </Table>
+            </table>
         </div>
     );
 }

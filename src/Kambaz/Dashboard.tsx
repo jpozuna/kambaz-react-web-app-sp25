@@ -68,8 +68,15 @@ export default function Dashboard({
                             <div className="card rounded-3 overflow-hidden">
                                 <Link
                                     className="wd-dashboard-course-link text-decoration-none text-dark"
-                                    to={`/Kambaz/Courses/${course._id}/Home`}>
-                                    <img src="/images/canvas-image.png" width="100%" height={160} className="card-img-top" />
+                                    to={`/Kambaz/Courses/${course._id}/Home`}
+                                >
+                                    <img
+                                        src="/images/canvas-image.png"
+                                        width="100%"
+                                        height={160}
+                                        className="card-img-top"
+                                        alt={course.name}
+                                    />
                                     <div className="card-body">
                                         <h5 className="wd-dashboard-course-title card-title">
                                             {course.name}
@@ -77,27 +84,28 @@ export default function Dashboard({
                                         <p className="wd-dashboard-course-title card-text">
                                             {course.description}
                                         </p>
-                                        <button className="btn btn-primary">Go</button>
+                                        <div className="d-flex justify-content-between align-items-center">
+                                            <button className="btn btn-primary">Go</button>
+                                            <small className="text-muted">
+                                                {course.number}
+                                            </small>
+                                        </div>
                                     </div>
                                 </Link>
-                                <div className="card-body">
-                                    <button onClick={(event) => {
-                                        event.preventDefault();
-                                        deleteCourse(course._id);
-                                    }}
-                                            className="btn btn-secondary float-end me-2"
-                                            id="wd-unenroll-course-click">
-                                        Unenroll
-                                    </button>
-                                    <button id="wd-edit-course-click"
+                                {(currentUser.role === "ADMIN" || currentUser.role === "FACULTY") && (
+                                    <div className="card-body">
+                                        <button
+                                            id="wd-edit-course-click"
                                             onClick={(event) => {
                                                 event.preventDefault();
                                                 setCourse(course);
                                             }}
-                                            className="btn btn-warning me-2 float-end">
-                                        Edit
-                                    </button>
-                                </div>
+                                            className="btn btn-warning me-2 float-end"
+                                        >
+                                            Edit
+                                        </button>
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}
